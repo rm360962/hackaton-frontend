@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+
+:root {
+	--bs-body-font-family: 'Nunito Sans', Arial, sans-serif;
+	--bs-btn-font-family: 'Nunito Sans', Arial, sans-serif;
+	--bs-nav-link-color: 'black'
+}
+
+.was-validated .form-control:invalid~.invalid-feedback {
+	display: block;
+	visibility: visible;
+	min-height: 1.5em;
+}
+
+.invalid-feedback {
+	display: block;
+	visibility: hidden;
+	min-height: 1.5em;
+}

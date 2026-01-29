@@ -63,6 +63,9 @@ const Header = () => {
                             <Link to="/usuarios" className="nav-link">Usuários</Link>
                         </li>
                     )}
+                    <li className="nav-item">
+                        <Link to="/avaliacoes" className="nav-link">Avaliações</Link>
+                    </li>
                 </ul>
                 <span className="navbar-text d-flex">
                     <div style={{ fontSize: '14px' }}>

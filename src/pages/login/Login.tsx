@@ -52,7 +52,7 @@ const Login = () => {
 			expiracao: dataAtualSegundos + umaHoraSegundos
 		});
 
-		navegador('/postagens')
+		navegador('/')
 	};
 
 	return (

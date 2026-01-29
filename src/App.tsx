@@ -12,6 +12,7 @@ import Usuario from "./pages/usuario/Usuario.tsx";
 import EditarUsuario from "./pages/usuario/EditarUsuario.tsx";
 import PaginaNaoEncontrada from "./pages/status/404.tsx";
 import AcessoNaoPermitido from "./pages/status/401.tsx";
+import Avaliacao from "./pages/avaliacao/Avaliacao.tsx";
 
 function App() {
   const [sessao, setSessao] = useState({} as TSession);
@@ -98,7 +99,13 @@ function App() {
             />
              <Route path="/" element={
               <ProtectedRoute permissoes={['buscar_postagem']}>
-                <Usuario />
+                <Home />
+              </ProtectedRoute>
+             }
+            />
+            <Route path="/avaliacoes" element={
+              <ProtectedRoute permissoes={['buscar_postagem']}>
+                <Avaliacao />
               </ProtectedRoute>
              }
             />

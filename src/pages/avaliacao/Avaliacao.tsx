@@ -75,7 +75,7 @@ const Avaliacao = () => {
                             tipo="button"
                             titulo="Clique para cadastrar uma nova avaliação"
                             class="primary"
-                            onClick={() => { navigator(`/usuarios/editar/null`) }}
+                            onClick={() => { navigator(`/avaliacoes/editar/null`) }}
                         >
                             Nova avaliação
                         </Button>
@@ -85,7 +85,7 @@ const Avaliacao = () => {
                             <thead>
                                 <tr>
                                     <th>Ações</th>
-                                    <th>Perguntas</th> {/* Aqui vai o botão de toggle */}
+                                    <th>Perguntas</th>
                                     <th>Código</th>
                                     <th>Nome</th>
                                     <th>Descricao</th>
@@ -122,7 +122,6 @@ const Avaliacao = () => {
                                                     )}
                                                 </td>
                                                 <td className="text-center">
-                                                    {/* BOTÃO QUE EXPANDE A LINHA */}
                                                     <button
                                                         className={`btn btn-sm ${linhaExpandida === avaliacao.id ? 'btn-secondary' : 'btn-info'}`}
                                                         onClick={() => expandirLinha(avaliacao.id)}
@@ -158,7 +157,15 @@ const Avaliacao = () => {
                                                                 {avaliacao.perguntas && avaliacao.perguntas.length > 0 ? (
                                                                     avaliacao.perguntas.map((pergunta) => (
                                                                         <tr key={pergunta.id}>
-                                                                            <td></td>
+                                                                            <td>
+                                                                                <button
+                                                                                    style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
+                                                                                    title="Clique para inativar a avaliação"
+                                                                                    onClick={() => { confirmarRemocao(avaliacao.id) }}
+                                                                                >
+                                                                                    &#10060;
+                                                                                </button>
+                                                                            </td>
                                                                             <td>{pergunta.id}</td>
                                                                             <td>{pergunta.descricao}</td>
                                                                             <td>{pergunta.tipo}</td>

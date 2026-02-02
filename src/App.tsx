@@ -13,6 +13,7 @@ import EditarUsuario from "./pages/usuario/EditarUsuario.tsx";
 import PaginaNaoEncontrada from "./pages/status/404.tsx";
 import AcessoNaoPermitido from "./pages/status/401.tsx";
 import Avaliacao from "./pages/avaliacao/Avaliacao.tsx";
+import EditarAvaliacao from "./pages/avaliacao/EditarAvaliacao.tsx";
 
 function App() {
   const [sessao, setSessao] = useState({} as TSession);
@@ -106,6 +107,12 @@ function App() {
             <Route path="/avaliacoes" element={
               <ProtectedRoute permissoes={['buscar_postagem']}>
                 <Avaliacao />
+              </ProtectedRoute>
+             }
+            />
+            <Route path="/avaliacoes/editar/:id" element={
+              <ProtectedRoute permissoes={['buscar_postagem']}>
+                <EditarAvaliacao />
               </ProtectedRoute>
              }
             />

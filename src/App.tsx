@@ -1,19 +1,20 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { TAlertProps } from "./types/TComponentProps.ts";
+import { TSession } from "./types/TSession.ts";
+import { SessionContext } from "./sessionContext.ts";
 import Login from "./pages/login/Login.tsx";
 import Home from "./pages/Home.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import Alert from "./components/Alert.tsx";
 import imagemFundo from './assets/bg-ia-generated.png';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { TAlertProps } from "./types/TAlert.ts";
-import { TSession } from "./types/TSession.ts";
-import { SessionContext } from "./sessionContext.ts";
 import Usuario from "./pages/usuario/Usuario.tsx";
 import EditarUsuario from "./pages/usuario/EditarUsuario.tsx";
 import PaginaNaoEncontrada from "./pages/status/404.tsx";
 import AcessoNaoPermitido from "./pages/status/401.tsx";
 import Avaliacao from "./pages/avaliacao/Avaliacao.tsx";
 import EditarAvaliacao from "./pages/avaliacao/EditarAvaliacao.tsx";
+import Conteudo from "./pages/conteudo/Conteudo.tsx";
 
 function App() {
   const [sessao, setSessao] = useState({} as TSession);
@@ -82,7 +83,7 @@ function App() {
   if (carregando) {
     return (<></>)
   }
-  
+
   return (
     <SessionContext.Provider value={{ sessao: sessao, setSessao: setSessao, adcionarAlerta: adcionarAlerta, usuarioPossuiPermissao: usuarioPossuiPermissao }}>
       <div className="container-fluid vh-100" style={style}>
@@ -98,23 +99,29 @@ function App() {
             <Route path="/login" element={
               <Login />}
             />
-             <Route path="/" element={
+            <Route path="/" element={
               <ProtectedRoute permissoes={['buscar_postagem']}>
                 <Home />
               </ProtectedRoute>
-             }
+            }
+            />
+            <Route path="/conteudos" element={
+              <ProtectedRoute permissoes={['buscar_postagem']}>
+                <Conteudo />
+              </ProtectedRoute>
+            }
             />
             <Route path="/avaliacoes" element={
               <ProtectedRoute permissoes={['buscar_postagem']}>
                 <Avaliacao />
               </ProtectedRoute>
-             }
+            }
             />
             <Route path="/avaliacoes/editar/:id" element={
               <ProtectedRoute permissoes={['buscar_postagem']}>
                 <EditarAvaliacao />
               </ProtectedRoute>
-             }
+            }
             />
             <Route path="/usuarios" element={
               <ProtectedRoute permissoes={['buscar_usuario']}>

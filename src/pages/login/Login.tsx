@@ -2,7 +2,7 @@ import { FormEvent, useContext, useState } from 'react';
 import Input from '../../components/Input.tsx';
 import Button from '../../components/Button.tsx';
 import { LoginService } from '../../service/login.service.js';
-import { TipoAlerta } from '../../types/TAlert.ts';
+import { TipoAlerta } from '../../types/TComponentProps.ts';
 import { useNavigate } from "react-router-dom";
 import { SessionContext } from '../../sessionContext.ts';
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { TAlertProps } from "../types/TAlert";
+import { TAlertProps } from "../types/TComponentProps";
 
 const Alert = (props: TAlertProps) => {
     const [visivel, setVisivel] = useState(true);

@@ -1,4 +1,4 @@
-import { TInputProps } from "../types/TInput";
+import { TInputProps } from "../types/TComponentProps";
 
 const Input = (props : TInputProps) => {
 	return (

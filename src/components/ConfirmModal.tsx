@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { TConfirmDialogProps } from "../types/TConfirmModal";
+import { TConfirmDialogProps } from "../types/TComponentProps";
 import Button from "./Button";
 
 const ConfirmModal = ({ visivel, setVisivel, titulo, pergunta, acao } : TConfirmDialogProps) => {

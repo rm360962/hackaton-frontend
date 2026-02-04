@@ -1,4 +1,4 @@
-import { TSelectProps } from "../types/TSelect";
+import { TSelectProps } from "../types/TComponentProps";
 
 const Select = ({ valor, onChange, titulo, obrigatorio, mensagemPadrao, itens } : TSelectProps) => {
     return (

@@ -1,6 +1,6 @@
-import { TTextArea } from "../types/TTextArea";
+import { TTextAreaProps } from "../types/TComponentProps";
 
-const TextArea = ({ valor, tamanhoMaximo, onChange, obrigatorio, style } : TTextArea) => {
+const TextArea = ({ valor, tamanhoMaximo, onChange, obrigatorio, style } : TTextAreaProps) => {
     return (
         <textarea 
             value={valor} 

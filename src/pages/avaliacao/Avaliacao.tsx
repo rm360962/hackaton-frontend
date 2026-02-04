@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { useState, Fragment } from "react";
 import Button from "../../components/Button";
-import { useState, Fragment } from "react"; // Adicionei Fragment
 import ConfirmModal from "../../components/ConfirmModal";
 import Header from "../../components/Header";
 

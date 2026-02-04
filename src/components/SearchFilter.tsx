@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import Button from "./Button";
-import { TSearchFilter } from "../types/TSearchFilter";
+import { TSearchFilter } from "../types/TComponentProps";
 
 const SearchFilter = ({ children, pesquisar, limpar }: TSearchFilter) => {
 	const [expandida, setExpandida] = useState(false);

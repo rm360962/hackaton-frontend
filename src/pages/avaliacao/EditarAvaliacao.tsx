@@ -1,13 +1,12 @@
 import { useNavigate, useParams } from "react-router-dom";
-import Header from "../../components/Header";
+import { TSelectItem, TipoAlerta } from "../../types/TComponentProps";
 import { useContext, useState } from "react";
 import { TEdicaoAvaliacao, TEdicaoPergunta } from "../../types/TAvaliacao";
+import { SessionContext } from "../../sessionContext";
+import Header from "../../components/Header";
 import Input from "../../components/Input";
-import { TSelectItem } from "../../types/TSelect";
 import Select from "../../components/Select";
 import Button from "../../components/Button";
-import { SessionContext } from "../../sessionContext";
-import { TipoAlerta } from "../../types/TAlert";
 
 const EditarAvaliacao = () => {
     const tiposAvaliacao: TSelectItem[] = [

@@ -2,7 +2,8 @@
   "name": "hackaton-frontend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js","type": "module",
+  "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@uiw/react-md-editor": "^4.0.11",
     "axios": "^1.11.0",
     "bootstrap": "^5.3.7",
     "react": "^19.1.1",

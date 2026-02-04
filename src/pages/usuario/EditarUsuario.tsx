@@ -1,15 +1,14 @@
 import { useContext, useEffect, useState } from "react";
-import Button from "../../components/Button";
-import Header from "../../components/Header"
-import Input from "../../components/Input";
 import { TEdicaoUsuario } from "../../types/TUsuario";
 import { useNavigate, useParams } from "react-router-dom";
 import { UsuarioService } from "../../service/usuario.service";
 import { SessionContext } from "../../sessionContext";
-import { TipoAlerta } from "../../types/TAlert";
-import { TSelectItem } from "../../types/TSelect";
-import Select from "../../components/Select";
+import { TipoAlerta, TSelectItem } from "../../types/TComponentProps";
 import { TCategoriaUsuario } from "../../types/TSession";
+import Button from "../../components/Button";
+import Header from "../../components/Header"
+import Input from "../../components/Input";
+import Select from "../../components/Select";
 
 const EditarUsuario = () => {
     const [usuario, setUsuario] = useState({} as TEdicaoUsuario);

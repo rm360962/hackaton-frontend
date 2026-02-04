@@ -1,4 +1,4 @@
-import { TButtonProps } from "../types/TButton";
+import { TButtonProps } from "../types/TComponentProps";
 
 const Button = (props: TButtonProps) => {
 	return (

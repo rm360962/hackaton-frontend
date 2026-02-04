@@ -1,17 +1,16 @@
 import { useContext, useEffect, useState } from "react";
-import Header from "../../components/Header";
-import Input from "../../components/Input";
-import SearchFilter from "../../components/SearchFilter";
 import { TBuscaUsuario, TUsuario } from "../../types/TUsuario";
 import { UsuarioService } from "../../service/usuario.service";
 import { SessionContext } from "../../sessionContext";
-import { TipoAlerta } from "../../types/TAlert";
+import { TipoAlerta, TSelectItem } from "../../types/TComponentProps";
+import { useNavigate } from "react-router-dom";
+import { TCategoriaUsuario } from "../../types/TSession";
+import Header from "../../components/Header";
+import Input from "../../components/Input";
+import SearchFilter from "../../components/SearchFilter";
 import Button from "../../components/Button";
 import Select from "../../components/Select";
-import { TSelectItem } from "../../types/TSelect";
-import { useNavigate } from "react-router-dom";
 import ConfirmModal from "../../components/ConfirmModal";
-import { TCategoriaUsuario } from "../../types/TSession";
 
 const Usuario = () => {
     const usuarioBuscaInicial: TBuscaUsuario = {

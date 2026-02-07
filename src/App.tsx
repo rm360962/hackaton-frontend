@@ -100,25 +100,25 @@ function App() {
               <Login />}
             />
             <Route path="/" element={
-              <ProtectedRoute permissoes={['buscar_postagem']}>
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
                 <Home />
               </ProtectedRoute>
             }
             />
             <Route path="/conteudos" element={
-              <ProtectedRoute permissoes={['buscar_postagem']}>
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
                 <Conteudo />
               </ProtectedRoute>
             }
             />
             <Route path="/avaliacoes" element={
-              <ProtectedRoute permissoes={['buscar_postagem']}>
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
                 <Avaliacao />
               </ProtectedRoute>
             }
             />
             <Route path="/avaliacoes/editar/:id" element={
-              <ProtectedRoute permissoes={['buscar_postagem']}>
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
                 <EditarAvaliacao />
               </ProtectedRoute>
             }

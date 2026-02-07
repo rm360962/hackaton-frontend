@@ -1,8 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { TSelectItem, TipoAlerta } from "../../types/TComponentProps";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { TEdicaoAvaliacao, TEdicaoPergunta } from "../../types/TAvaliacao";
 import { SessionContext } from "../../sessionContext";
+import { AvaliacaoService } from "../../service/avaliacao.service";
 import Header from "../../components/Header";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
@@ -29,6 +30,12 @@ const EditarAvaliacao = () => {
             valor: 1
         }
     ];
+    const valorInicialAvaliacao = {
+        id: '',
+        nome: '',
+        descricao: '',
+        tipo: ''
+    } as TEdicaoAvaliacao;
     const valorInicialPergunta = {
         descricao: '',
         peso: 0,
@@ -37,15 +44,98 @@ const EditarAvaliacao = () => {
         respostaCorreta: ''
     } as TEdicaoPergunta;
 
-    const [avaliacao, setAvaliacao] = useState({} as TEdicaoAvaliacao);
+    const { id: idAvaliacao } = useParams();
+    const [avaliacao, setAvaliacao] = useState(valorInicialAvaliacao);
     const [pergunta, setPergunta] = useState(valorInicialPergunta);
     const [perguntas, setPerguntas] = useState([] as TEdicaoPergunta[]);
-    const { id: idAvaliacao } = useParams();
+    const [idAux, setIdAux] = useState(idAvaliacao);
+    const avaliacaoService = new AvaliacaoService();
     const navigator = useNavigate();
     const contexto = useContext(SessionContext);
 
-    const gravar = async (event: any) => {
+    useEffect(() => {
+        buscarAvaliacao(idAvaliacao);
+    }, []);
 
+    const buscarAvaliacao = async (id: string | undefined) => {
+        if (id == null || id === 'null') return;
+
+        const { erro, avaliacao } = await avaliacaoService.buscarAvaliacaoPorId(+id);
+        console.log(avaliacao);
+        if (erro) {
+            contexto.adcionarAlerta({
+                tipo: TipoAlerta.Erro,
+                mensagem: erro
+            });
+            return;
+        }
+
+        setAvaliacao({
+            id: avaliacao.id.toString(),
+            nome: avaliacao.nome,
+            descricao: avaliacao.descricao,
+            tipo: avaliacao.tipo.id.toString(),
+        });
+
+        const perguntas: TEdicaoPergunta[] = avaliacao.perguntas.map((pergunta) => {
+            return {
+                id: pergunta.id,
+                descricao: pergunta.descricao,
+                peso: pergunta.peso,
+                tipo: pergunta.tipo.id.toString(),
+                alternativas: pergunta.tipo.id === 0 ? pergunta.itens.join(',') : '',
+                respostaCorreta: pergunta.tipo.id === 0 ? pergunta.itens[pergunta.respostaCorreta] : ''
+            };
+        });
+
+        setPerguntas(perguntas);
+    };
+
+    const gravar = async (event: any) => {
+        event.preventDefault();
+
+        avaliacao.perguntas = perguntas;
+
+        if (avaliacao.id) {
+            const erros = await avaliacaoService.editarAvaliacao(avaliacao);
+
+            if (erros) {
+                for (const erro of erros) {
+                    contexto.adcionarAlerta({
+                        tipo: TipoAlerta.Erro,
+                        mensagem: erro
+                    });
+                }
+                return;
+            }
+
+            contexto.adcionarAlerta({
+                tipo: TipoAlerta.Sucesso,
+                mensagem: 'Avaliação editada com sucesso',
+            });
+
+            buscarAvaliacao(avaliacao.id);
+        } else {
+            const { erros, avaliacao: avaliacaoCadastrada } = await avaliacaoService.cadastrarAvaliacao(avaliacao);
+
+            if (erros) {
+                for (const erro of erros) {
+                    contexto.adcionarAlerta({
+                        tipo: TipoAlerta.Erro,
+                        mensagem: erro
+                    });
+                }
+                return;
+            }
+
+            contexto.adcionarAlerta({
+                tipo: TipoAlerta.Sucesso,
+                mensagem: 'Avaliação cadastrada com sucesso',
+            });
+
+            setIdAux(avaliacaoCadastrada.id);
+            buscarAvaliacao(avaliacaoCadastrada.id);
+        }
     };
 
     const adcionarPergunta = async (event: any) => {
@@ -55,6 +145,12 @@ const EditarAvaliacao = () => {
 
         if (!perguntaValida) {
             return;
+        }
+
+        if (pergunta.alternativas) {
+            const alternativasArray = pergunta.alternativas.split(',');
+            const indiceRespostaCorreta = alternativasArray.findIndex(alternativa => alternativa === pergunta.respostaCorreta);
+            setPergunta({ ...pergunta, respostaCorreta: indiceRespostaCorreta.toString() });
         }
 
         setPerguntas([...perguntas, pergunta]);
@@ -88,7 +184,49 @@ const EditarAvaliacao = () => {
             perguntaValida = false;
         }
 
+        if (pergunta.tipo && +pergunta.tipo === 0) {
+            if (!pergunta.alternativas || pergunta.alternativas.trim().length === 0) {
+                contexto.adcionarAlerta({
+                    tipo: TipoAlerta.Erro,
+                    mensagem: 'O campo alternativas da pergunta é obrigatório',
+                });
+                perguntaValida = false;
+            }
+
+            if (!pergunta.respostaCorreta || pergunta.respostaCorreta.trim().length === 0) {
+                contexto.adcionarAlerta({
+                    tipo: TipoAlerta.Erro,
+                    mensagem: 'O campo Resposta Correta da pergunta é obrigatório',
+                });
+                perguntaValida = false;
+            }
+        }
+
         return perguntaValida;
+    };
+
+    const removerPergunta = async (id: number | null, indice: number) => {
+        if (id == null) {
+            const perguntasNovo = perguntas.filter((_, i) => { i !== indice });
+            setPerguntas(perguntasNovo);
+        } else {
+            const perguntaRemovida = avaliacaoService.removerPergunta(id);
+
+            if (!perguntaRemovida) {
+                contexto.adcionarAlerta({
+                    tipo: TipoAlerta.Erro,
+                    mensagem: 'Erro ao remover a pergunta',
+                });
+                return;
+            }
+
+            buscarAvaliacao(idAux);
+
+            contexto.adcionarAlerta({
+                tipo: TipoAlerta.Sucesso,
+                mensagem: 'Pergunta removida com sucesso',
+            });
+        }
     };
 
     return (
@@ -96,7 +234,7 @@ const EditarAvaliacao = () => {
             <Header />
             <div className="container-fluid" style={{ paddingLeft: '0', height: '700px', overflowY: 'scroll' }}>
                 <div>
-                    <p className="fw-semibold h5 mb-4">{idAvaliacao && idAvaliacao !== 'null' ? 'Edição de avalição' : 'Cadastro de avaliação'}</p>
+                    <p className="fw-semibold h5 mb-4" style={{ textAlign: 'center' }}>{avaliacao.id ? 'Edição de avalição' : 'Cadastro de avaliação'}</p>
                     <form id="formEdicao" noValidate onSubmit={(e) => { gravar(e); }}>
                         <div className="d-flex align-items-center justify-content-center flex-column">
                             <div style={{ width: '65%' }}>
@@ -231,10 +369,10 @@ const EditarAvaliacao = () => {
                                                 </div>
                                             </>
                                         )}
-                                        <div className="d-flex align-items-center justify-content-center" style={{ marginBottom: 10}}>
+                                        <div className="d-flex align-items-center justify-content-center" style={{ marginBottom: 10 }}>
                                             <Button tipo="button" class="primary" onClick={adcionarPergunta}>Adcionar</Button>
                                         </div>
-                
+
                                         <table className="table table-bordered">
                                             <thead>
                                                 <tr>
@@ -256,10 +394,19 @@ const EditarAvaliacao = () => {
                                                 {perguntas.map((pergunta, index) => {
                                                     return (
                                                         <tr key={index}>
-                                                            <td></td>
+                                                            <td>{
+                                                                <button
+                                                                    type="button"
+                                                                    style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
+                                                                    title="Clique para inativar a avaliação"
+                                                                    onClick={() => { removerPergunta(pergunta.id || null, index); }}
+                                                                >
+                                                                    &#10060;
+                                                                </button>
+                                                            }</td>
                                                             <td>{pergunta.id}</td>
                                                             <td>{pergunta.descricao}</td>
-                                                            <td>{pergunta.tipo}</td>
+                                                            <td>{tiposPergunta.find(tipo => tipo.valor == pergunta.tipo)?.label}</td>
                                                             <td>{pergunta.peso}</td>
                                                             <td>{pergunta.alternativas}</td>
                                                             <td>{pergunta.respostaCorreta}</td>

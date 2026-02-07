@@ -181,7 +181,7 @@ const Conteudo = () => {
 				<div className="container-fluid" style={{ paddingLeft: '0' , height: '700px', overflowY: 'scroll'}}>
 					<div className='d-flex align-items-center justify-content-between'>
 						<p className="h5 ps-4 fw-semibold" style={{ letterSpacing: '1px' }}>&#128240; Postagens encontradas</p>
-						{ context.usuarioPossuiPermissao('cadastrar_postagem') && (
+						{ context.usuarioPossuiPermissao('cadastrar_conteudo') && (
 							<Button tipo='button' class='primary' onClick={(e: any) => { navigator('/conteudo/editar/null')}}>Novo conteúdo</Button>
 						)}
 					</div>

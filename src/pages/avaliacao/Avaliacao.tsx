@@ -1,47 +1,52 @@
 import { useNavigate } from "react-router-dom";
-import { useState, Fragment } from "react";
+import { useState, Fragment, useEffect, useContext } from "react";
+import { TAvaliacao, TBuscaAvaliacao } from "../../types/TAvaliacao";
 import Button from "../../components/Button";
 import ConfirmModal from "../../components/ConfirmModal";
 import Header from "../../components/Header";
+import { AvaliacaoService } from "../../service/avaliacao.service";
+import { SessionContext } from "../../sessionContext";
+import { TipoAlerta } from "../../types/TComponentProps";
 
 const Avaliacao = () => {
-    const [avaliacoes, setAvaliacoes] = useState([
-        {
-            id: 1,
-            nome: 'Teste',
-            descricao: 'Avaliação de teste',
-            tipo: 'Atividade',
-            ativo: true,
-            perguntas: [
-                {
-                    id: 1,
-                    descricao: 'Quem foi teste?',
-                    peso: 100,
-                    tipo: 'multipla escolha',
-                    items: ['Teste1', 'Teste2', 'Teste3', 'Teste4'],
-                    respostaCorreta: 2
-                },
-                {
-                    id: 2,
-                    descricao: 'Qual a nota?',
-                    peso: 50,
-                    tipo: 'descritiva',
-                    items: [],
-                    respostaCorreta: 0
-                }
-            ],
-            dataInclusao: '01/01/2026',
-            usuarioInclusao: 'Sistema',
-            dataAlteracao: '01/01/2026',
-            usuarioAlteracao: null
-        }
-    ]);
-
+    const filtrosBuscaAvaliacoes = {
+        id: '',
+        nome: '',
+        descricao: '',
+    } as TBuscaAvaliacao;
+    const [avaliacoes, setAvaliacoes] = useState([] as TAvaliacao[]);
+    const [fitrosBusca, setFiltrosBusca] = useState(filtrosBuscaAvaliacoes);
     const [remover, setRemover] = useState(false);
     const [idRemocao, setIdRemocao] = useState<number | null>(null);
     const [linhaExpandida, setLinhaExpandida] = useState<number | null>(null);
+    const avaliacaoService = new AvaliacaoService();
+    const contexto = useContext(SessionContext);
+    const navegador = useNavigate();
 
-    const navigator = useNavigate();
+    useEffect(() => {
+        pesquisar(fitrosBusca);
+    }, []);
+
+    const pesquisar = async (filtros: TBuscaAvaliacao) => {
+        const { erro, avaliacoes } = await avaliacaoService.buscarAvaliacoes(filtros);
+        console.log(avaliacoes);
+        if (erro) {
+            contexto.adcionarAlerta({
+                tipo: TipoAlerta.Erro,
+                mensagem: erro
+            });
+            return;
+        }
+
+        setAvaliacoes(avaliacoes);
+
+        if (avaliacoes.length === 0) {
+            contexto.adcionarAlerta({
+                tipo: TipoAlerta.Info,
+                mensagem: 'Não foi encontrado avaliações com os filtros informados',
+            });
+        }
+    };
 
     const confirmarRemocao = async (id: number) => {
         setIdRemocao(id);
@@ -49,11 +54,28 @@ const Avaliacao = () => {
     };
 
     const removerAvaliacao = async () => {
-        console.log('Removendo avaliacao');
+        if (!idRemocao) return;
+
+        const avaliacaoRemovida = await avaliacaoService.removerAvaliacao(idRemocao);
+
+        if (!avaliacaoRemovida) {
+            contexto.adcionarAlerta({
+                tipo: TipoAlerta.Erro,
+                mensagem: 'Erro ao remover a avaliação',
+            });
+            return;
+        }
+
+        await pesquisar(fitrosBusca);
+
+        contexto.adcionarAlerta({
+            tipo: TipoAlerta.Sucesso,
+            mensagem: 'Avaliação removida com sucesso',
+        });
     };
 
     const editarAvaliacao = async (id: number) => {
-
+        navegador(`/avaliacoes/editar/${id}`);
     };
 
     const expandirLinha = (id: number) => {
@@ -75,7 +97,7 @@ const Avaliacao = () => {
                             tipo="button"
                             titulo="Clique para cadastrar uma nova avaliação"
                             class="primary"
-                            onClick={() => { navigator(`/avaliacoes/editar/null`) }}
+                            onClick={() => { navegador(`/avaliacoes/editar/null`) }}
                         >
                             Nova avaliação
                         </Button>
@@ -90,6 +112,7 @@ const Avaliacao = () => {
                                     <th>Nome</th>
                                     <th>Descricao</th>
                                     <th>Tipo</th>
+                                    <th>Ativo</th>
                                     <th>Data inclusão</th>
                                     <th>Usuario inclusão</th>
                                     <th>Data alteração</th>
@@ -132,7 +155,8 @@ const Avaliacao = () => {
                                                 <td>{avaliacao.id}</td>
                                                 <td>{avaliacao.nome}</td>
                                                 <td>{avaliacao.descricao}</td>
-                                                <td>{avaliacao.tipo}</td>
+                                                <td>{avaliacao.tipo.nome}</td>
+                                                <td>{avaliacao.ativo ? 'Sim' : 'Não'}</td>
                                                 <td>{avaliacao.dataInclusao}</td>
                                                 <td>{avaliacao.usuarioInclusao}</td>
                                                 <td>{avaliacao.dataAlteracao}</td>
@@ -144,38 +168,30 @@ const Avaliacao = () => {
                                                         <table className="table table-bordered">
                                                             <thead>
                                                                 <tr>
-                                                                    <td>Ações</td>
                                                                     <th>Código</th>
                                                                     <th>Descrição</th>
                                                                     <th>Tipo</th>
                                                                     <th>Peso</th>
                                                                     <th>Opções</th>
                                                                     <th>Resposta Correta</th>
+                                                                    <th>Ativo</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
                                                                 {avaliacao.perguntas && avaliacao.perguntas.length > 0 ? (
                                                                     avaliacao.perguntas.map((pergunta) => (
                                                                         <tr key={pergunta.id}>
-                                                                            <td>
-                                                                                <button
-                                                                                    style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
-                                                                                    title="Clique para inativar a avaliação"
-                                                                                    onClick={() => { confirmarRemocao(avaliacao.id) }}
-                                                                                >
-                                                                                    &#10060;
-                                                                                </button>
-                                                                            </td>
                                                                             <td>{pergunta.id}</td>
                                                                             <td>{pergunta.descricao}</td>
-                                                                            <td>{pergunta.tipo}</td>
+                                                                            <td>{pergunta.tipo?.nome}</td>
                                                                             <td>{pergunta.peso}</td>
                                                                             <td>
-                                                                                {pergunta.items && pergunta.items.length > 0
-                                                                                    ? pergunta.items.join(', ')
+                                                                                {pergunta.itens && pergunta.itens.length > 0
+                                                                                    ? pergunta.itens.join(', ')
                                                                                     : '-'}
                                                                             </td>
-                                                                            <td>{pergunta.items ? pergunta.items[pergunta.respostaCorreta] : null}</td>
+                                                                            <td>{pergunta.itens ? pergunta.itens[pergunta.respostaCorreta] : null}</td>
+                                                                            <td>{pergunta.ativo ? 'Sim' : 'Não'}</td>
                                                                         </tr>
                                                                     ))
                                                                 ) : (
@@ -198,8 +214,8 @@ const Avaliacao = () => {
                 <ConfirmModal
                     visivel={remover}
                     setVisivel={setRemover}
-                    titulo="Inativar usuário"
-                    pergunta="Confirma a inativação do usuário?"
+                    titulo="Inativar avaliação"
+                    pergunta="Confirma a inativação da avaliação"
                     acao={removerAvaliacao} />
             </div>
         </>

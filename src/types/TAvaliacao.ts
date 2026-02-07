@@ -1,9 +1,15 @@
+import { Enumerado } from "./Generico";
+
 export type TAvaliacao = {
     id: number,
     nome: string,
     descricao: string,
-    tipo: string,
+    tipo: Enumerado,
     ativo: boolean,
+    dataInclusao?: string,
+    usuarioInclusao: string,
+    dataAlteracao?: string,
+    usuarioAlteracao: string
     perguntas: TPergunta[]
 };
 
@@ -11,17 +17,22 @@ export type TPergunta = {
     id: number,
     descricao: string,
     peso: number,
-    tipo: number,
-    items: string[],
+    tipo: Enumerado,
+    itens: string[],
+    ativo: boolean,
+    dataInclusao: string,
+    usuarioInclusao: string,
+    dataAlteracao?: string,
+    usuarioAlteracao?: string,
     respostaCorreta: number
 };
 
 export type TEdicaoAvaliacao = {
-    id?: number,
+    id?: string,
     nome: string,
     descricao: string,
     tipo: string,
-    perguntas: TPergunta,
+    perguntas?: TEdicaoPergunta[],
 };
 
 export type TEdicaoPergunta = {
@@ -33,3 +44,9 @@ export type TEdicaoPergunta = {
     alternativas?: string,
     respostaCorreta?: string
 };
+
+export type TBuscaAvaliacao = {
+    id?: string,
+    nome?: string,
+    descricao?: string
+};  

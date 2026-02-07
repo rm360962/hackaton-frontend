@@ -1,15 +1,15 @@
 import { useContext } from "react";
 import { conexaoApi } from "../axios";
-import { TBuscaConteudo, TEdicaoConteudo, TConteudo } from "../types/TConteudo";
 import { SessionContext } from "../sessionContext";
 import { TRespostaErroApi } from "../types/TRespostaErroApi";
+import { TAvaliacao, TBuscaAvaliacao, TEdicaoAvaliacao } from "../types/TAvaliacao";
 
-export class ConteudoService {
+export class AvaliacaoService {
     private contexto = useContext(SessionContext);
 
-    buscarConteudos = async (dados: TBuscaConteudo) => {
+    buscarAvaliacoes = async (filtros: TBuscaAvaliacao): Promise<{ erro: string | null, avaliacoes: TAvaliacao[] }> => {
         const params: { [key: string]: any } = {};
-        for (const [chave, valor] of Object.entries(dados)) {
+        for (const [chave, valor] of Object.entries(filtros)) {
             if (valor !== null && valor !== undefined && valor !== '') {
                 params[chave] = valor;
             }
@@ -18,7 +18,7 @@ export class ConteudoService {
         try {
             const resposta = await conexaoApi({
                 method: 'get',
-                url: '/conteudo',
+                url: '/avaliacoes',
                 params: params,
                 headers: {
                     token: this.contexto.sessao.token
@@ -26,47 +26,47 @@ export class ConteudoService {
             });
 
             return {
-                erro: resposta.status === 200 ? null : 'Erro na busca dos conteudos',
-                conteudos: resposta.status === 200 ? resposta?.data : [],
+                erro: resposta.status === 200 ? null : 'Erro na busca das avaliações',
+                avaliacoes: resposta.status === 200 ? resposta?.data : [],
             };
         } catch (erro) {
-            console.log('Erro na busca dos conteudos', erro);
+            console.log('Erro na busca das avaliacoes', erro);
             return {
-                erro: 'Erro ao buscar as postagens',
-                conteudos: [],
+                erro: 'Erro na busca das avaliações',
+                avaliacoes: [] as TAvaliacao[],
             };
         }
     };
 
-    buscarConteudoPorId = async (id: number): Promise<{ erro: string | null, conteudo: TConteudo }> => {
+    buscarAvaliacaoPorId = async (id: number): Promise<{ erro: string | null, avaliacao: TAvaliacao }> => {
         try {
             const resposta = await conexaoApi({
                 method: 'get',
-                url: `/conteudo/${id}`,
+                url: `/avaliacoes/${id}`,
                 headers: {
                     token: this.contexto.sessao.token,
                 },
             });
 
             return {
-                erro: resposta.status === 200 ? null : 'Erro ao buscar a conteudo',
-                conteudo: resposta.status === 200 ? resposta.data : {}
+                erro: resposta.status === 200 ? null : 'Erro ao busca a avaliação',
+                avaliacao: resposta.status === 200 ? resposta.data : {}
             };
         } catch (erro) {
-            console.log('Erro buscar a conteudo por id', erro);
+            console.log('Erro ao busca a avaliação', erro);
             return {
-                erro: 'Erro ao buscar a conteudo',
-                conteudo: {} as TConteudo
+                erro: 'Erro ao busca a avaliação',
+                avaliacao: {} as TAvaliacao
             };
         }
     };
 
-    cadastrarConteudo = async (conteudo: TEdicaoConteudo): Promise<{ erros: TRespostaErroApi[] | null, conteudo: TEdicaoConteudo }> => {
+    cadastrarAvaliacao = async (avaliacao: TEdicaoAvaliacao): Promise<{ erros: TRespostaErroApi[] | null, avaliacao: TEdicaoAvaliacao }> => {
         try {
             const resposta = await conexaoApi({
                 method: 'post',
-                url: '/conteudo',
-                data: conteudo,
+                url: '/avaliacoes',
+                data: avaliacao,
                 headers: {
                     token: this.contexto.sessao.token,
                 },
@@ -74,21 +74,21 @@ export class ConteudoService {
             });
 
             if (resposta.status === 201) {
-                conteudo.id = resposta.data.id;
+                avaliacao.id = resposta.data.id;
                 return {
-                    conteudo: conteudo,
+                    avaliacao: avaliacao,
                     erros: null,
                 };
             } else {
                 return {
-                    conteudo: {} as TEdicaoConteudo,
+                    avaliacao: {} as TEdicaoAvaliacao,
                     erros: resposta.data.erros,
                 };
             }
         } catch (erro) {
             console.log('Erro no cadastro da conteudo', erro);
             return {
-                conteudo: {} as TEdicaoConteudo,
+                avaliacao: {} as TEdicaoAvaliacao,
                 erros: [
                     {
                         mensagem: 'Erro ao cadastrar a conteudo',
@@ -98,12 +98,12 @@ export class ConteudoService {
         }
     };
 
-    editarConteudo = async (conteudo: TEdicaoConteudo): Promise<TRespostaErroApi[] | null> => {
+    editarAvaliacao = async (avaliacao: TEdicaoAvaliacao): Promise<TRespostaErroApi[] | null> => {
         try {
             const resposta = await conexaoApi({
                 method: 'put',
-                url: `/conteudo/${conteudo.id}`,
-                data: conteudo,
+                url: `/avaliacoes/${avaliacao.id}`,
+                data: avaliacao,
                 headers: {
                     token: this.contexto.sessao.token,
                 },
@@ -125,11 +125,11 @@ export class ConteudoService {
         }
     };
 
-    removerConteudo = async (id: number) : Promise<boolean> => {
+    removerAvaliacao = async (id: number) : Promise<boolean> => {
         try {
             const resposta = await conexaoApi({
                 method: 'delete',
-                url: `/conteudo/${id}`,
+                url: `/avaliacoes/${id}`,
                 headers: {
                     token: this.contexto.sessao.token
                 },
@@ -137,9 +137,25 @@ export class ConteudoService {
 
             return resposta.status === 200;
         } catch (erro) {
-            console.log('Erro na exclusao da conteudo', erro);
+            console.log('Erro na exclusao da avaliacao', erro);
             return false;
         }
     };
 
+    removerPergunta = async (id: number) : Promise<boolean> => {
+        try {
+            const resposta = await conexaoApi({
+                method: 'delete',
+                url: `/avaliacoes/pergunta/${id}`,
+                headers: {
+                    token: this.contexto.sessao.token
+                },
+            });
+
+            return resposta.status === 200;
+        } catch (erro) {
+            console.log('Erro na exclusao da pergunta', erro);
+            return false;
+        }
+    };
 }

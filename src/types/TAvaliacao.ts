@@ -16,7 +16,7 @@ export type TAvaliacao = {
 export type TPergunta = {
     id: number,
     descricao: string,
-    peso: number,
+    valor: number,
     tipo: Enumerado,
     itens: string[],
     ativo: boolean,
@@ -38,11 +38,18 @@ export type TEdicaoAvaliacao = {
 export type TEdicaoPergunta = {
     id?: number,
     descricao: string,
-    peso: number,
+    valor: number,
     tipo: string,
     items?: string[],
     alternativas?: string,
     respostaCorreta?: string
+    respostaCorretaLabel?: string
+};
+
+export type TGeracaoPergunta = {
+    assunto: string,
+    qtdDescritiva: number,
+    qtdMuliplaEscolha: number,
 };
 
 export type TBuscaAvaliacao = {

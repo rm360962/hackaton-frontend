@@ -29,7 +29,7 @@ const Avaliacao = () => {
 
     const pesquisar = async (filtros: TBuscaAvaliacao) => {
         const { erro, avaliacoes } = await avaliacaoService.buscarAvaliacoes(filtros);
-        console.log(avaliacoes);
+        
         if (erro) {
             contexto.adcionarAlerta({
                 tipo: TipoAlerta.Erro,
@@ -184,7 +184,7 @@ const Avaliacao = () => {
                                                                             <td>{pergunta.id}</td>
                                                                             <td>{pergunta.descricao}</td>
                                                                             <td>{pergunta.tipo?.nome}</td>
-                                                                            <td>{pergunta.peso}</td>
+                                                                            <td>{pergunta.valor}</td>
                                                                             <td>
                                                                                 {pergunta.itens && pergunta.itens.length > 0
                                                                                     ? pergunta.itens.join(', ')

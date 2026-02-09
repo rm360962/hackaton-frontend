@@ -1,13 +1,14 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { TSelectItem, TipoAlerta } from "../../types/TComponentProps";
 import { useContext, useEffect, useState } from "react";
-import { TEdicaoAvaliacao, TEdicaoPergunta } from "../../types/TAvaliacao";
+import { TEdicaoAvaliacao, TEdicaoPergunta, TGeracaoPergunta } from "../../types/TAvaliacao";
 import { SessionContext } from "../../sessionContext";
 import { AvaliacaoService } from "../../service/avaliacao.service";
 import Header from "../../components/Header";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import Button from "../../components/Button";
+import { AssitenteService } from "../../service/assistente.service";
 
 const EditarAvaliacao = () => {
     const tiposAvaliacao: TSelectItem[] = [
@@ -20,6 +21,7 @@ const EditarAvaliacao = () => {
             valor: 1
         }
     ];
+
     const tiposPergunta: TSelectItem[] = [
         {
             label: 'Multipla escolha',
@@ -30,26 +32,50 @@ const EditarAvaliacao = () => {
             valor: 1
         }
     ];
+
+    const tiposOperacao: TSelectItem[] = [
+        {
+            label: 'Assitente',
+            valor: 0
+        },
+        {
+            label: 'Manual',
+            valor: 1
+        }
+    ];
+
     const valorInicialAvaliacao = {
         id: '',
         nome: '',
         descricao: '',
         tipo: ''
     } as TEdicaoAvaliacao;
+
     const valorInicialPergunta = {
         descricao: '',
-        peso: 0,
+        valor: 0,
         tipo: '',
         alternativas: '',
-        respostaCorreta: ''
+        respostaCorretaLabel: ''
     } as TEdicaoPergunta;
+
+    const valorInicialGeracaoPergunta = {
+        assunto: '',
+        qtdDescritiva: 0,
+        qtdMuliplaEscolha: 10
+    } as TGeracaoPergunta
 
     const { id: idAvaliacao } = useParams();
     const [avaliacao, setAvaliacao] = useState(valorInicialAvaliacao);
     const [pergunta, setPergunta] = useState(valorInicialPergunta);
     const [perguntas, setPerguntas] = useState([] as TEdicaoPergunta[]);
     const [idAux, setIdAux] = useState(idAvaliacao);
+    const [tipoAdicaoPergunta, setTipoAdicaoPergunta] = useState<string | null>('0');
+    const [geraPergunta, setGeraPergunta] = useState(valorInicialGeracaoPergunta);
+    const [gravando, setGravando] = useState(false);
+    const [gerando, setGerando] = useState(false);
     const avaliacaoService = new AvaliacaoService();
+    const assistenteService = new AssitenteService();
     const navigator = useNavigate();
     const contexto = useContext(SessionContext);
 
@@ -61,7 +87,7 @@ const EditarAvaliacao = () => {
         if (id == null || id === 'null') return;
 
         const { erro, avaliacao } = await avaliacaoService.buscarAvaliacaoPorId(+id);
-        console.log(avaliacao);
+
         if (erro) {
             contexto.adcionarAlerta({
                 tipo: TipoAlerta.Erro,
@@ -81,7 +107,7 @@ const EditarAvaliacao = () => {
             return {
                 id: pergunta.id,
                 descricao: pergunta.descricao,
-                peso: pergunta.peso,
+                valor: pergunta.valor,
                 tipo: pergunta.tipo.id.toString(),
                 alternativas: pergunta.tipo.id === 0 ? pergunta.itens.join(',') : '',
                 respostaCorreta: pergunta.tipo.id === 0 ? pergunta.itens[pergunta.respostaCorreta] : ''
@@ -92,64 +118,102 @@ const EditarAvaliacao = () => {
     };
 
     const gravar = async (event: any) => {
-        event.preventDefault();
+        setGravando(true);
 
-        avaliacao.perguntas = perguntas;
+        try {
+            event.preventDefault();
 
-        if (avaliacao.id) {
-            const erros = await avaliacaoService.editarAvaliacao(avaliacao);
+            const dadosAvaliacao = document.getElementById('dadosAvaliacao') as HTMLFormElement;
+            const avaliacaoValida = validarGravacao();
 
-            if (erros) {
-                for (const erro of erros) {
-                    contexto.adcionarAlerta({
-                        tipo: TipoAlerta.Erro,
-                        mensagem: erro
-                    });
-                }
+            if (!avaliacaoValida) {
+                dadosAvaliacao.classList.add('was-validated');
+                contexto.adcionarAlerta({
+                    tipo: TipoAlerta.Erro,
+                    mensagem: 'Existem campos inválidos'
+                });
                 return;
             }
 
-            contexto.adcionarAlerta({
-                tipo: TipoAlerta.Sucesso,
-                mensagem: 'Avaliação editada com sucesso',
-            });
+            avaliacao.perguntas = perguntas;
 
-            buscarAvaliacao(avaliacao.id);
-        } else {
-            const { erros, avaliacao: avaliacaoCadastrada } = await avaliacaoService.cadastrarAvaliacao(avaliacao);
+            if (avaliacao.id) {
+                const erros = await avaliacaoService.editarAvaliacao(avaliacao);
 
-            if (erros) {
-                for (const erro of erros) {
-                    contexto.adcionarAlerta({
-                        tipo: TipoAlerta.Erro,
-                        mensagem: erro
-                    });
+                if (erros) {
+                    for (const erro of erros) {
+                        contexto.adcionarAlerta({
+                            tipo: TipoAlerta.Erro,
+                            mensagem: erro
+                        });
+                    }
+                    return;
                 }
-                return;
+
+                contexto.adcionarAlerta({
+                    tipo: TipoAlerta.Sucesso,
+                    mensagem: 'Avaliação editada com sucesso',
+                });
+
+                buscarAvaliacao(avaliacao.id);
+            } else {
+                const { erros, avaliacao: avaliacaoCadastrada } = await avaliacaoService.cadastrarAvaliacao(avaliacao);
+
+                if (erros) {
+                    for (const erro of erros) {
+                        contexto.adcionarAlerta({
+                            tipo: TipoAlerta.Erro,
+                            mensagem: erro
+                        });
+                    }
+                    return;
+                }
+
+                contexto.adcionarAlerta({
+                    tipo: TipoAlerta.Sucesso,
+                    mensagem: 'Avaliação cadastrada com sucesso',
+                });
+
+                setIdAux(avaliacaoCadastrada.id);
+                buscarAvaliacao(avaliacaoCadastrada.id);
             }
-
-            contexto.adcionarAlerta({
-                tipo: TipoAlerta.Sucesso,
-                mensagem: 'Avaliação cadastrada com sucesso',
-            });
-
-            setIdAux(avaliacaoCadastrada.id);
-            buscarAvaliacao(avaliacaoCadastrada.id);
+        } finally {
+            setGravando(false);
         }
     };
 
     const adcionarPergunta = async (event: any) => {
         event.preventDefault();
 
+        const dadosPergunta = document.getElementById('dadosPergunta') as HTMLElement;
         const perguntaValida = validarPergunta();
 
         if (!perguntaValida) {
+            dadosPergunta.classList.add('was-validated');
+            return;
+        }
+        if (tipoAdicaoPergunta && tipoAdicaoPergunta === '0') {
+            setGerando(true);
+
+            const { erro, perguntas } = await assistenteService.gerarPerguntas(geraPergunta);
+
+            setGerando(false);
+
+            if (erro) {
+                contexto.adcionarAlerta({
+                    tipo: TipoAlerta.Erro,
+                    mensagem: erro,
+                });
+            } else {
+                setPerguntas(perguntas);
+            }
+
             return;
         }
 
         if (pergunta.alternativas) {
             const alternativasArray = pergunta.alternativas.split(',');
-            const indiceRespostaCorreta = alternativasArray.findIndex(alternativa => alternativa === pergunta.respostaCorreta);
+            const indiceRespostaCorreta = alternativasArray.findIndex(alternativa => alternativa === pergunta.respostaCorretaLabel);
             setPergunta({ ...pergunta, respostaCorreta: indiceRespostaCorreta.toString() });
         }
 
@@ -160,49 +224,61 @@ const EditarAvaliacao = () => {
     const validarPergunta = () => {
         let perguntaValida = true;
 
-        if (!pergunta.descricao || pergunta.descricao.trim().length === 0) {
-            contexto.adcionarAlerta({
-                tipo: TipoAlerta.Erro,
-                mensagem: 'O campo descricao da pergunta é obrigatório',
-            });
-            perguntaValida = false;
-        }
-
-        if (!pergunta.peso) {
-            contexto.adcionarAlerta({
-                tipo: TipoAlerta.Erro,
-                mensagem: 'O campo peso da pergunta é obrigatório',
-            });
-            perguntaValida = false;
-        }
-
-        if (!pergunta.tipo) {
-            contexto.adcionarAlerta({
-                tipo: TipoAlerta.Erro,
-                mensagem: 'O campo tipo da pergunta é obrigatório',
-            });
-            perguntaValida = false;
-        }
-
-        if (pergunta.tipo && +pergunta.tipo === 0) {
-            if (!pergunta.alternativas || pergunta.alternativas.trim().length === 0) {
-                contexto.adcionarAlerta({
-                    tipo: TipoAlerta.Erro,
-                    mensagem: 'O campo alternativas da pergunta é obrigatório',
-                });
+        if (tipoAdicaoPergunta === '0') {
+            if (!geraPergunta.assunto && geraPergunta.assunto.length === 0) {
                 perguntaValida = false;
             }
 
-            if (!pergunta.respostaCorreta || pergunta.respostaCorreta.trim().length === 0) {
-                contexto.adcionarAlerta({
-                    tipo: TipoAlerta.Erro,
-                    mensagem: 'O campo Resposta Correta da pergunta é obrigatório',
-                });
+            if (geraPergunta.qtdDescritiva == null || geraPergunta.qtdMuliplaEscolha == null) {
+                perguntaValida = false;
+            }
+        } else {
+            if (!pergunta.descricao && pergunta.descricao.length === 0) {
+                perguntaValida = false;
+            }
+
+            if (!pergunta.valor) {
+                perguntaValida = false;
+            }
+
+            if (!pergunta.tipo) {
+                perguntaValida = false;
+            }
+
+            if (pergunta.tipo === '0' &&
+                ((!pergunta.alternativas || pergunta.alternativas.length === 0) ||
+                    (!pergunta.respostaCorreta || pergunta.respostaCorreta.length === 0))) {
                 perguntaValida = false;
             }
         }
 
         return perguntaValida;
+    };
+
+    const validarGravacao = () => {
+        let gravacaoValida = true;
+
+        if (!avaliacao.nome && avaliacao.nome.length > 0) {
+            gravacaoValida = false;
+        }
+
+        if (!avaliacao.descricao && avaliacao.descricao.length > 0) {
+            gravacaoValida = false;
+        }
+
+        if (!avaliacao.tipo) {
+            gravacaoValida = false;
+        }
+
+        if (!perguntas || perguntas.length === 0) {
+            contexto.adcionarAlerta({
+                tipo: TipoAlerta.Erro,
+                mensagem: 'É obrigatório cadastrar pelo menos uma pergunta',
+            });
+            gravacaoValida = false;
+        }
+
+        return gravacaoValida;
     };
 
     const removerPergunta = async (id: number | null, indice: number) => {
@@ -229,18 +305,26 @@ const EditarAvaliacao = () => {
         }
     };
 
+    const tipoAdicaoPerguntaChanged = (tipoAdicaoPergunta: string) => {
+        const dadosPergunta = document.getElementById('dadosPergunta') as HTMLFormElement;
+        dadosPergunta.classList.remove('was-validated');
+        setTipoAdicaoPergunta(tipoAdicaoPergunta);
+        setPergunta(valorInicialPergunta);
+        setGeraPergunta(valorInicialGeracaoPergunta);
+    };
+
     return (
         <>
             <Header />
             <div className="container-fluid" style={{ paddingLeft: '0', height: '700px', overflowY: 'scroll' }}>
                 <div>
-                    <p className="fw-semibold h5 mb-4" style={{ textAlign: 'center' }}>{avaliacao.id ? 'Edição de avalição' : 'Cadastro de avaliação'}</p>
+                    <p className="fw-semibold h5" style={{ textAlign: 'center' }}>{avaliacao.id ? 'Edição de avalição' : 'Cadastro de avaliação'}</p>
                     <form id="formEdicao" noValidate onSubmit={(e) => { gravar(e); }}>
                         <div className="d-flex align-items-center justify-content-center flex-column">
                             <div style={{ width: '65%' }}>
                                 <fieldset className="border p-2" style={{ backgroundColor: 'white', borderRadius: 10 }}>
                                     <legend className="float-none w-auto" style={{ fontSize: '1.15rem', fontWeight: '600' }}>Dados básicos</legend>
-                                    <div style={{ padding: 5 }}>
+                                    <div id="dadosAvaliacao" style={{ padding: 5 }}>
                                         {avaliacao.id && (
                                             <div className='form-group'>
                                                 <label className="fw-semibold">Código </label>
@@ -298,79 +382,142 @@ const EditarAvaliacao = () => {
                                     </div>
                                 </fieldset>
                                 <fieldset className="border p-2" style={{ backgroundColor: 'white', borderRadius: 10 }}>
-                                    <legend className="float-none w-auto" style={{ fontSize: '1.15rem', fontWeight: '600' }}    >Perguntas</legend>
-                                    <div style={{ padding: 5 }}>
+                                    <legend className="float-none w-auto" style={{ fontSize: '1.15rem', fontWeight: '600' }}>
+                                        Perguntas
+                                    </legend>
+                                    <div id="dadosPergunta" style={{ padding: 5 }}>
                                         <div className='form-group'>
-                                            <label className="fw-semibold">Descrição </label>
-                                            <Input
-                                                placeholder="Informe a descrição"
-                                                titulo="Preencha com a descrição da pergunta"
-                                                valor={pergunta.descricao}
-                                                onChange={(e: any) => { setPergunta({ ...pergunta, descricao: e.target.value }); }}
-                                                obrigatorio={true}
-                                            />
-                                            <div className="invalid-feedback">
-                                                A descrição da pergunta é obrigatória
-                                            </div>
-                                        </div>
-                                        <div className='form-group'>
-                                            <label className="fw-semibold">Peso </label>
-                                            <Input
-                                                placeholder="Informe o peso"
-                                                titulo="Preencha com um valor de 0.25 a 10"
-                                                valor={pergunta.peso ? pergunta.peso.toString() : ''}
-                                                onChange={(e: any) => { setPergunta({ ...pergunta, peso: parseInt(e.target.value, 10) }); }}
-                                                obrigatorio={true}
-                                            />
-                                            <div className="invalid-feedback">
-                                                É obrigatório informar o peso de 0.25 a 10
-                                            </div>
-                                        </div>
-                                        <div className='form-group'>
-                                            <label className='fw-semibold'>Tipo </label>
+                                            <label className='fw-semibold'>Tipo da inclusão </label>
                                             <Select
-                                                valor={pergunta.tipo ? pergunta.tipo.toString() : ''}
-                                                titulo="Selecione o tipo da avaliação"
-                                                mensagemPadrao="Selecione o tipo da avaliação"
-                                                itens={tiposPergunta}
-                                                onChange={(e: any) => { setPergunta({ ...pergunta, tipo: e.target.value }); }}
-                                                obrigatorio={true} />
+                                                valor={tipoAdicaoPergunta || ''}
+                                                titulo="Selecione tipo da inclusão"
+                                                mensagemPadrao="Selecione a operação"
+                                                itens={tiposOperacao}
+                                                onChange={(e: any) => { tipoAdicaoPerguntaChanged(e.target.value); }}
+                                                obrigatorio={false} />
                                             <div className="invalid-feedback">
-                                                A seleção do tipo da avaliação é obrigatória
                                             </div>
                                         </div>
-                                        {pergunta.tipo && pergunta.tipo === '0' && (
+                                        {(tipoAdicaoPergunta && tipoAdicaoPergunta === '0') && (
                                             <>
                                                 <div className='form-group'>
-                                                    <label className="fw-semibold">Alternativas </label>
+                                                    <label className="fw-semibold">Assunto </label>
                                                     <Input
-                                                        placeholder="Informe as alternativas (Separadas por vírgula)"
-                                                        titulo="Preencha com as alternativas. Ex: teste1, teste2, teste3, teste4"
-                                                        valor={pergunta.alternativas ? pergunta.alternativas.toString() : ''}
-                                                        onChange={(e: any) => { setPergunta({ ...pergunta, alternativas: e.target.value }); }}
+                                                        placeholder="Informe o assunto para geração das perguntas"
+                                                        titulo="Preencha com o assunto que o assitente usará para gerar as perguntas"
+                                                        valor={geraPergunta.assunto}
+                                                        onChange={(e: any) => { setGeraPergunta({ ...geraPergunta, assunto: e.target.value }); }}
                                                         obrigatorio={true}
                                                     />
                                                     <div className="invalid-feedback">
-                                                        É obrigatório informar o peso de 0.25 a 10
+                                                        O campo assunto é obrigatório
                                                     </div>
                                                 </div>
                                                 <div className='form-group'>
-                                                    <label className="fw-semibold">Resposta correta</label>
+                                                    <label className="fw-semibold">Quantidade descritiva </label>
                                                     <Input
-                                                        placeholder="Informe a resposta correta"
-                                                        titulo="Preencha com o resposta correta entre as alternativas informadas"
-                                                        valor={pergunta.respostaCorreta ? pergunta.respostaCorreta.toString() : ''}
-                                                        onChange={(e: any) => { setPergunta({ ...pergunta, respostaCorreta: e.target.value }); }}
+                                                        placeholder="Informe a quantidade descritiva"
+                                                        titulo="Preencha com a quantidade de perguntas descritivas a ser gerado"
+                                                        valor={geraPergunta.qtdDescritiva != null ? geraPergunta.qtdDescritiva.toString() : ''}
+                                                        onChange={(e: any) => { setGeraPergunta({ ...geraPergunta, qtdDescritiva: e.target.value }); }}
                                                         obrigatorio={true}
                                                     />
                                                     <div className="invalid-feedback">
-                                                        É obrigatório informar o peso de 0.25 a 10
+                                                        O campo quantidade descritiva é obrigatório
+                                                    </div>
+                                                </div>
+                                                <div className='form-group'>
+                                                    <label className="fw-semibold">Quantidade multipla escolha </label>
+                                                    <Input
+                                                        placeholder="Informe a quantidade multipla escolha"
+                                                        titulo="Preencha com a quantidade de perguntas multipla escolha a ser gerado"
+                                                        valor={geraPergunta.qtdMuliplaEscolha ? geraPergunta.qtdMuliplaEscolha.toString() : ''}
+                                                        onChange={(e: any) => { setGeraPergunta({ ...geraPergunta, qtdMuliplaEscolha: e.target.value }); }}
+                                                        obrigatorio={true}
+                                                    />
+                                                    <div className="invalid-feedback">
+                                                        O campo quantidade multipla escolha é obrigatório
                                                     </div>
                                                 </div>
                                             </>
                                         )}
+                                        {(!tipoAdicaoPergunta || tipoAdicaoPergunta === '1') && (
+                                            <>
+                                                <div className='form-group'>
+                                                    <label className="fw-semibold">Descrição </label>
+                                                    <Input
+                                                        placeholder="Informe a descrição"
+                                                        titulo="Preencha com a descrição da pergunta"
+                                                        valor={pergunta.descricao}
+                                                        onChange={(e: any) => { setPergunta({ ...pergunta, descricao: e.target.value }); }}
+                                                        obrigatorio={true}
+                                                    />
+                                                    <div className="invalid-feedback">
+                                                        A descrição da pergunta é obrigatória
+                                                    </div>
+                                                </div>
+                                                <div className='form-group'>
+                                                    <label className="fw-semibold">Peso </label>
+                                                    <Input
+                                                        placeholder="Informe o valor"
+                                                        titulo="Preencha com um valor de 0.25 a 10"
+                                                        valor={pergunta.valor ? pergunta.valor.toString() : ''}
+                                                        onChange={(e: any) => { setPergunta({ ...pergunta, valor: parseInt(e.target.value, 10) }); }}
+                                                        obrigatorio={true}
+                                                    />
+                                                    <div className="invalid-feedback">
+                                                        É obrigatório informar o valor de 0.25 a 10
+                                                    </div>
+                                                </div>
+                                                <div className='form-group'>
+                                                    <label className='fw-semibold'>Tipo </label>
+                                                    <Select
+                                                        valor={pergunta.tipo ? pergunta.tipo.toString() : ''}
+                                                        titulo="Selecione o tipo da avaliação"
+                                                        mensagemPadrao="Selecione o tipo da avaliação"
+                                                        itens={tiposPergunta}
+                                                        onChange={(e: any) => { setPergunta({ ...pergunta, tipo: e.target.value }); }}
+                                                        obrigatorio={true} />
+                                                    <div className="invalid-feedback">
+                                                        A seleção do tipo da avaliação é obrigatória
+                                                    </div>
+                                                </div>
+                                                {pergunta.tipo && pergunta.tipo === '0' && (
+                                                    <>
+                                                        <div className='form-group'>
+                                                            <label className="fw-semibold">Alternativas </label>
+                                                            <Input
+                                                                placeholder="Informe as alternativas (Separadas por vírgula)"
+                                                                titulo="Preencha com as alternativas. Ex: teste1, teste2, teste3, teste4"
+                                                                valor={pergunta.alternativas ? pergunta.alternativas.toString() : ''}
+                                                                onChange={(e: any) => { setPergunta({ ...pergunta, alternativas: e.target.value }); }}
+                                                                obrigatorio={true}
+                                                            />
+                                                            <div className="invalid-feedback">
+                                                                É obrigatório as alternativas
+                                                            </div>
+                                                        </div>
+                                                        <div className='form-group'>
+                                                            <label className="fw-semibold">Resposta correta</label>
+                                                            <Input
+                                                                placeholder="Informe a resposta correta"
+                                                                titulo="Preencha com o resposta correta entre as alternativas informadas"
+                                                                valor={pergunta.respostaCorretaLabel || ''}
+                                                                onChange={(e: any) => { setPergunta({ ...pergunta, respostaCorretaLabel: e.target.value }); }}
+                                                                obrigatorio={true}
+                                                            />
+                                                            <div className="invalid-feedback">
+                                                                É obrigatório informar a resposta correta
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </>
+                                        )}
                                         <div className="d-flex align-items-center justify-content-center" style={{ marginBottom: 10 }}>
-                                            <Button tipo="button" class="primary" onClick={adcionarPergunta}>Adcionar</Button>
+                                            <Button tipo="button" class="primary" onClick={adcionarPergunta} carregando={gerando}>
+                                                {!tipoAdicaoPergunta || tipoAdicaoPergunta === '1' ? 'Adcionar' : 'Gerar'}
+                                            </Button>
                                         </div>
 
                                         <table className="table table-bordered">
@@ -407,9 +554,9 @@ const EditarAvaliacao = () => {
                                                             <td>{pergunta.id}</td>
                                                             <td>{pergunta.descricao}</td>
                                                             <td>{tiposPergunta.find(tipo => tipo.valor == pergunta.tipo)?.label}</td>
-                                                            <td>{pergunta.peso}</td>
+                                                            <td>{pergunta.valor}</td>
                                                             <td>{pergunta.alternativas}</td>
-                                                            <td>{pergunta.respostaCorreta}</td>
+                                                            <td>{pergunta.respostaCorretaLabel}</td>
                                                         </tr>
                                                     )
                                                 })}
@@ -423,12 +570,16 @@ const EditarAvaliacao = () => {
                                         class="primary"
                                         style={{ marginRight: 10 }}
                                         titulo="Clique para gravar as informações acima"
+                                        carregando={gravando}
+                                        desabilitado={gerando}
                                     >Gravar</Button>
                                     <Button
                                         tipo="button"
                                         class="secondary"
                                         onClick={() => { navigator('/avaliacoes') }}
-                                        titulo="Clique para voltar para tela anterior">
+                                        titulo="Clique para voltar para tela anterior"
+                                        desabilitado={gravando || gerando}
+                                    >
                                         Voltar
                                     </Button>
                                 </div>

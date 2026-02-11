@@ -11,6 +11,7 @@ const Input = (props : TInputProps) => {
 		required={props.obrigatorio}
 		disabled={props.desabilitado}
 		style={props.style}
+		maxLength={props.maxLength}
 		/>
 
 	);

@@ -1,7 +1,7 @@
 export type TConteudo =  {
     id: number,
-    titulo: string,
     descricao: string,
+    texto: string,
     usuario: TUsuarioBasico,
     dataInclusao: string,
     usuarioInclusao: string,
@@ -24,13 +24,13 @@ export type TBuscaConteudo = {
 export type TEdicaoConteudo = {
     id?: number,
     titulo: string,
-    descricao: string
+    descricao: string,
+    texto: string
 };
 
-export type TTextArea = {
-    valor: string,
-    tamanhoMaximo?: number,
-    onChange: Function,
-    obrigatorio: boolean,
-    style?: any
+export type TCardConteudo = {
+    conteudo: TConteudo,
+    visualizar?: Function,
+    remover?: Function,
+    editar?: Function,
 };

@@ -8,7 +8,7 @@ const PaginaNaoEncontrada = () => {
                 <p className="lead">
                     A página que você está procurando não existe.
                 </p>
-                <Link to="/postagens" className="btn btn-primary">Voltar para o início</Link>
+                <Link to="/" className="btn btn-primary">Voltar para o início</Link>
             </div>
         </div>
     );

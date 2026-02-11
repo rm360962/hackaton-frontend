@@ -62,7 +62,7 @@ const SearchFilter = ({ children, pesquisar, limpar }: TSearchFilter) => {
 					</div>
 				</div>
 				<button className="p-3 d-flex align-items-center justify-content-center fw-bold" onClick={alterarBarraFiltros} style={{ width: '20px', backgroundColor: 'lightblue', border: 'none', marginBottom: '10px' }}>
-					{expandida ? '<<' : '>>'}
+					{expandida ? '<' : '>'}
 				</button>
 			</div>
 		</>

@@ -8,7 +8,7 @@ const AcessoNaoPermitido = () => {
                 <p className="lead">
                     Você não possui permissão para acesso a página
                 </p>
-                <Link to="/postagens" className="btn btn-primary">Voltar para o início</Link>
+                <Link to="/" className="btn btn-primary">Voltar para o início</Link>
             </div>
         </div>
     );

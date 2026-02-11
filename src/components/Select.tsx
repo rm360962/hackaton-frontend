@@ -1,13 +1,14 @@
 import { TSelectProps } from "../types/TComponentProps";
 
-const Select = ({ valor, onChange, titulo, obrigatorio, mensagemPadrao, itens } : TSelectProps) => {
+const Select = ({ valor, onChange, titulo, obrigatorio, mensagemPadrao, itens, style } : TSelectProps) => {
     return (
         <select
             value={valor} 
             className="form-select" 
             onChange={(e) => onChange(e)} 
             title={titulo} 
-            required={obrigatorio}>
+            required={obrigatorio}
+            style={style}>
             <option value=''>{mensagemPadrao}</option>
             {itens.map((item) => {
                 return ( <option value={item.valor} key={item.valor}>{item.label}</option>)

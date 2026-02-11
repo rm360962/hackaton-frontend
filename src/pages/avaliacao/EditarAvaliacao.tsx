@@ -4,11 +4,12 @@ import { useContext, useEffect, useState } from "react";
 import { TEdicaoAvaliacao, TEdicaoPergunta, TGeracaoPergunta } from "../../types/TAvaliacao";
 import { SessionContext } from "../../sessionContext";
 import { AvaliacaoService } from "../../service/avaliacao.service";
+import { AssitenteService } from "../../service/assistente.service";
+import { tiposOperacao } from "../../util/tiposOperacao";
 import Header from "../../components/Header";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import Button from "../../components/Button";
-import { AssitenteService } from "../../service/assistente.service";
 
 const EditarAvaliacao = () => {
     const tiposAvaliacao: TSelectItem[] = [
@@ -32,18 +33,7 @@ const EditarAvaliacao = () => {
             valor: 1
         }
     ];
-
-    const tiposOperacao: TSelectItem[] = [
-        {
-            label: 'Assitente',
-            valor: 0
-        },
-        {
-            label: 'Manual',
-            valor: 1
-        }
-    ];
-
+    
     const valorInicialAvaliacao = {
         id: '',
         nome: '',

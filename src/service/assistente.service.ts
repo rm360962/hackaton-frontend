@@ -2,6 +2,7 @@ import { TEdicaoPergunta, TGeracaoPergunta } from "../types/TAvaliacao";
 import { useContext } from "react";
 import { conexaoApi } from "../axios";
 import { SessionContext } from "../sessionContext";
+import { TEdicaoConteudo } from "../types/TConteudo";
 
 export class AssitenteService {
     private contexto = useContext(SessionContext);
@@ -37,4 +38,38 @@ export class AssitenteService {
             };
         }
     };
+
+    gerarConteudo = async (assunto: string): Promise<{ erro: string | null, conteudo: TEdicaoConteudo}> => {
+        try {
+            const resposta = await conexaoApi({
+                method: 'post',
+                url: '/assitente/gerar-conteudo',
+                data: {
+                    assunto
+                },
+                headers: {
+                    token: this.contexto.sessao.token,
+                },
+                validateStatus: (status: number) => [200, 400].includes(status),
+            });
+
+            if (resposta.status === 200) {
+                return {
+                    erro: null,
+                    conteudo: resposta.data,
+                };
+            } else {
+                return {
+                    erro: resposta.data.mensagem,
+                    conteudo: {} as TEdicaoConteudo
+                };
+            }
+        } catch (erro) {
+            console.log('Erro na geração do conteúdo via assitente', erro);
+            return {
+                erro: 'Erro na geração do conteúdo via assitente',
+                conteudo: {}
+            };
+        }
+    }
 };

@@ -12,6 +12,7 @@ import SearchFilter from '../../components/SearchFilter.tsx';
 import Select from '../../components/Select.tsx';
 import ConfirmModal from '../../components/ConfirmModal.tsx';
 import Button from '../../components/Button.tsx';
+import CardConteudo from './CardConteudo.tsx';
 
 const Conteudo = () => {
 	const filtrosBuscaInicial : TBuscaConteudo = {
@@ -28,14 +29,13 @@ const Conteudo = () => {
 	const [conteudo, setConteudo] = useState({} as TConteudo);
 	const [idRemocao, setIdRemocao] = useState<number | null>(null);
 	const [professores, setProfessores] = useState([] as TSelectItem[]);
-
 	const [visualizar, setVisualizar] = useState(false);
 	const [remover, setRemover] = useState(false);
 
 	const conteudoService = new ConteudoService();
 	const usuarioService = new UsuarioService();
 	const context = useContext(SessionContext);
-	const navigator = useNavigate();
+	const navegador = useNavigate();
 
 	useEffect(() => {
 		pesquisar();
@@ -91,7 +91,7 @@ const Conteudo = () => {
 		setFiltrosBusca(filtrosBuscaInicial);
 	};
 
-	const confirmarRemocaoPostagem = (id: number) => {
+	const confirmarRemocaoConteudo = (id: number) => {
 		setIdRemocao(id);
 		setRemover(true);
 	};
@@ -112,11 +112,11 @@ const Conteudo = () => {
 	};
 
 	const visualizarConteudo = (id: number) => {
-		navigator(`/conteudos/visualizar/${id}`);
+		navegador(`/conteudos/visualizar/${id}`);
 	};
 
 	const editarConteudo = (id: number) => {
-		navigator(`/postagens/editar/${id}`)
+		navegador(`/conteudos/editar/${id}`)
 	};
 
 	return (
@@ -180,13 +180,22 @@ const Conteudo = () => {
 				</SearchFilter>
 				<div className="container-fluid" style={{ paddingLeft: '0' , height: '700px', overflowY: 'scroll'}}>
 					<div className='d-flex align-items-center justify-content-between'>
-						<p className="h5 ps-4 fw-semibold" style={{ letterSpacing: '1px' }}>&#128240; Postagens encontradas</p>
+						<p className="h5 ps-4 fw-semibold" style={{ letterSpacing: '1px' }}>&#128240; Conteúdos encontrados</p>
 						{ context.usuarioPossuiPermissao('cadastrar_conteudo') && (
-							<Button tipo='button' class='primary' onClick={(e: any) => { navigator('/conteudo/editar/null')}}>Novo conteúdo</Button>
+							<Button tipo='button' class='primary' onClick={(e: any) => { navegador('/conteudos/editar/null')}}>Novo conteúdo</Button>
 						)}
 					</div>
 					<div className="row g-1">
-						
+						{conteudos.map(conteudo => (
+							<div key={conteudo.id} className="col-12 col-md-3 col-lg-4 p-2 d-flex align-items-center justify-content-center ">
+								<CardConteudo
+									conteudo={conteudo}
+									visualizar={visualizarConteudo}
+									remover={confirmarRemocaoConteudo}
+									editar={editarConteudo}
+								/>
+							</div>
+						))}
 					</div>
 				</div>
 				<ConfirmModal

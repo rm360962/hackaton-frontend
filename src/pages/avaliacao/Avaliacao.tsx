@@ -29,7 +29,7 @@ const Avaliacao = () => {
 
     const pesquisar = async (filtros: TBuscaAvaliacao) => {
         const { erro, avaliacoes } = await avaliacaoService.buscarAvaliacoes(filtros);
-        
+
         if (erro) {
             contexto.adcionarAlerta({
                 tipo: TipoAlerta.Erro,
@@ -48,9 +48,13 @@ const Avaliacao = () => {
         }
     };
 
-    const confirmarRemocao = async (id: number) => {
+    const confirmarRemocao = (id: number) => {
         setIdRemocao(id);
         setRemover(true);
+    };
+
+    const visualizarAvaliacao = (id: number) => {
+        navegador(`/avaliacoes/visualizar/${id}/true`);
     };
 
     const removerAvaliacao = async () => {
@@ -74,7 +78,7 @@ const Avaliacao = () => {
         });
     };
 
-    const editarAvaliacao = async (id: number) => {
+    const editarAvaliacao = (id: number) => {
         navegador(`/avaliacoes/editar/${id}`);
     };
 
@@ -141,6 +145,15 @@ const Avaliacao = () => {
                                                             onClick={() => { confirmarRemocao(avaliacao.id) }}
                                                         >
                                                             &#10060;
+                                                        </button>
+                                                    )}
+                                                    {avaliacao.ativo && (
+                                                         <button
+                                                            style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
+                                                            title="Clique para pré-visualizar a avaliação"
+                                                            onClick={() => { visualizarAvaliacao(avaliacao.id) }}
+                                                        >
+                                                            &#128269;
                                                         </button>
                                                     )}
                                                 </td>

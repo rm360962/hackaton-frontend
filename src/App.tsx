@@ -15,6 +15,9 @@ import AcessoNaoPermitido from "./pages/status/401.tsx";
 import Avaliacao from "./pages/avaliacao/Avaliacao.tsx";
 import EditarAvaliacao from "./pages/avaliacao/EditarAvaliacao.tsx";
 import Conteudo from "./pages/conteudo/Conteudo.tsx";
+import ResponderAvaliacao from "./pages/avaliacao/ResponderAvaliacao.tsx";
+import EditarConteudo from "./pages/conteudo/EditarConteudo.tsx";
+import VisualizarConteudo from "./pages/conteudo/VisualizarConteudo.tsx";
 
 function App() {
   const [sessao, setSessao] = useState({} as TSession);
@@ -111,6 +114,18 @@ function App() {
               </ProtectedRoute>
             }
             />
+            <Route path="/conteudos/editar/:id" element={
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
+                <EditarConteudo />
+              </ProtectedRoute>
+            }
+            />
+            <Route path="/conteudos/visualizar/:id" element={
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
+                <VisualizarConteudo />
+              </ProtectedRoute>
+            }
+            />
             <Route path="/avaliacoes" element={
               <ProtectedRoute permissoes={['buscar_conteudo']}>
                 <Avaliacao />
@@ -120,6 +135,12 @@ function App() {
             <Route path="/avaliacoes/editar/:id" element={
               <ProtectedRoute permissoes={['buscar_conteudo']}>
                 <EditarAvaliacao />
+              </ProtectedRoute>
+            }
+            />
+            <Route path="/avaliacoes/visualizar/:id/:preVisualizar" element={
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
+                <ResponderAvaliacao />
               </ProtectedRoute>
             }
             />

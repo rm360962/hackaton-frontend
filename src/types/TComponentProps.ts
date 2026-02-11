@@ -28,6 +28,7 @@ export type TInputProps = {
     onChange: Function
     desabilitado?: boolean,
     style?: any,
+    maxLength?: number
 };
 
 export type TSearchFilter = {
@@ -47,7 +48,8 @@ export type TSelectProps = {
     onChange: Function,
     mensagemPadrao: string,
     titulo: string,
-    obrigatorio?: boolean
+    obrigatorio?: boolean,
+    style?: any
 };
 
 export type TTextAreaProps = {

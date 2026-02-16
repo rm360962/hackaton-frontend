@@ -18,6 +18,8 @@ import Conteudo from "./pages/conteudo/Conteudo.tsx";
 import ResponderAvaliacao from "./pages/avaliacao/ResponderAvaliacao.tsx";
 import EditarConteudo from "./pages/conteudo/EditarConteudo.tsx";
 import VisualizarConteudo from "./pages/conteudo/VisualizarConteudo.tsx";
+import AvaliacaoAluno from "./pages/avaliacaoUsuario/AvaliacaoAluno.tsx";
+import EditarAvaliacaoAluno from "./pages/avaliacaoUsuario/EditarAvaliacaoAluno.tsx";
 
 function App() {
   const [sessao, setSessao] = useState({} as TSession);
@@ -123,6 +125,18 @@ function App() {
             <Route path="/conteudos/visualizar/:id" element={
               <ProtectedRoute permissoes={['buscar_conteudo']}>
                 <VisualizarConteudo />
+              </ProtectedRoute>
+            }
+            />
+            <Route path="/avaliacoes/aluno" element={
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
+                <AvaliacaoAluno />
+              </ProtectedRoute>
+            }
+            />
+            <Route path="/avaliacoes/aluno/editar/:id" element={
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
+                <EditarAvaliacaoAluno />
               </ProtectedRoute>
             }
             />

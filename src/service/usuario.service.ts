@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { conexaoApi } from "../axios";
+import { clienteAxios } from "../axios";
 import { TBuscaUsuario, TEdicaoUsuario, TEdicaoUsuarioResposta, TUsuario } from "../types/TUsuario";
 import { SessionContext } from "../sessionContext";
 import { TCategoriaUsuario } from "../types/TSession";
@@ -17,9 +17,9 @@ export class UsuarioService {
         }
 
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'get',
-                url: '/users',
+                url: '/usuarios',
                 params: params,
                 headers: {
                     token: token
@@ -41,9 +41,9 @@ export class UsuarioService {
 
     buscarUsuarioPorId = async (token: string, id: number): Promise<{ erro: string | null, usuario: TUsuario }> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'get',
-                url: `/users?id=${id}`,
+                url: `/usuarios?id=${id}`,
                 headers: {
                     token: token
                 },
@@ -64,9 +64,9 @@ export class UsuarioService {
 
     buscarCategoriasUsuario = async (): Promise<{ erro: string | null, categorias: TCategoriaUsuario[] }> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'get',
-                url: `/users/categories`,
+                url: `/usuarios/categorias`,
                 headers: {
                     token: this.context.sessao.token
                 },
@@ -87,9 +87,9 @@ export class UsuarioService {
 
     cadastrarUsuario = async (usuario: TEdicaoUsuario): Promise<{ erros: TRespostaErroApi[] | null, usuario: TEdicaoUsuario }> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'post',
-                url: `/users`,
+                url: `/usuarios`,
                 data: usuario,
                 headers: {
                     token: this.context.sessao.token
@@ -124,9 +124,9 @@ export class UsuarioService {
 
     editarUsuario = async (usuario: TEdicaoUsuario): Promise<TRespostaErroApi[] | null> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'put',
-                url: `/users/${usuario.id}`,
+                url: `/usuarios/${usuario.id}`,
                 data: usuario,
                 headers: {
                     token: this.context.sessao.token
@@ -146,9 +146,9 @@ export class UsuarioService {
 
     removerUsuario = async (id: number): Promise<boolean> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'delete',
-                url: `/users/${id}`,
+                url: `/usuarios/${id}`,
                 headers: {
                     token: this.context.sessao.token
                 },
@@ -161,11 +161,11 @@ export class UsuarioService {
         }
     };
 
-    buscarProfessores = async () : Promise<{ erro: string | null, usuarios: TUsuario[]}> => {
+    buscarProfessores = async (): Promise<{ erro: string | null, usuarios: TUsuario[] }> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'get',
-                url: `/users/teachers`,
+                url: `/usuarios/professores`,
                 headers: {
                     token: this.context.sessao.token,
                 },
@@ -177,6 +177,29 @@ export class UsuarioService {
             };
         } catch (erro) {
             console.log('Erro na busca do usuario por id', erro);
+            return {
+                erro: 'Erro ao buscar o usuário',
+                usuarios: []
+            };
+        }
+    };
+
+    buscarAlunos = async (): Promise<{ erro: string | null, usuarios: TUsuario[] }> => {
+        try {
+            const resposta = await clienteAxios({
+                method: 'get',
+                url: `/usuarios/alunos`,
+                headers: {
+                    token: this.context.sessao.token,
+                },
+            });
+
+            return {
+                erro: resposta.status === 200 ? null : 'Erro ao buscar os alunos',
+                usuarios: resposta.status == 200 ? resposta.data : []
+            };
+        } catch (erro) {
+            console.log('Erro na busca dos alunos', erro);
             return {
                 erro: 'Erro ao buscar o usuário',
                 usuarios: []

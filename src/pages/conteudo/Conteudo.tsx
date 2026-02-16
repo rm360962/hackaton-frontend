@@ -130,7 +130,7 @@ const Conteudo = () => {
 							titulo="Preencha com código do conteúdo a ser buscado"
 							placeholder="Código do conteúdo"
 							tipo="number"
-							valor={filtrosBusca.id}
+							valor={filtrosBusca.id || ''}
 							obrigatorio={false}
 							onChange={(e: any) => { setFiltrosBusca({ ...filtrosBusca, id: e.target.value}); }} />
 					</div>
@@ -139,7 +139,7 @@ const Conteudo = () => {
 						<Input
 							titulo="Preencha com título a ser buscado"
 							placeholder="Título do conteúdo"
-							valor={filtrosBusca.titulo}
+							valor={filtrosBusca.titulo || ''}
 							obrigatorio={false}
 							onChange={(e: any) => { setFiltrosBusca({ ...filtrosBusca, titulo: e.target.value}); }} />
 					</div>
@@ -148,14 +148,14 @@ const Conteudo = () => {
 						<Input
 							titulo="Preencha com a descrição do conteúdo"
 							placeholder="Descrição do conteúdo"
-							valor={filtrosBusca.descricao}
+							valor={filtrosBusca.descricao || ''}
 							obrigatorio={false}
 							onChange={(e: any) => { setFiltrosBusca({ ...filtrosBusca, descricao: e.target.value}); }} />
 					</div>
 					<div className='form-group mb-3'>
 						<label className='fw-semibold'>Professor</label>
 						<Select
-							valor={filtrosBusca.usuarioId}
+							valor={filtrosBusca.usuarioId || ''}
 							titulo="Selecione o professor a ser buscado"
 							mensagemPadrao="Selecione o professor"
 							itens={professores}
@@ -166,14 +166,14 @@ const Conteudo = () => {
 						<Input
 							titulo="Selecione a data inicial da criação do conteúdo a ser buscado"
 							tipo="date"
-							valor={filtrosBusca.dataInclusaoInicio}
+							valor={filtrosBusca.dataInclusaoInicio || ''}
 							obrigatorio={false}
 							onChange={(e: any) => { setFiltrosBusca({ ...filtrosBusca, dataInclusaoInicio: e.target.value}); }} />
 						<label className='fw-semibold' style={{ width: '100%', textAlign: 'center' }}>até</label>
 						<Input
 							titulo="Selecione a data final da criação do conteúdo a ser buscado"
 							tipo="date"
-							valor={filtrosBusca.dataInclusaoFim}
+							valor={filtrosBusca.dataInclusaoFim || ''}
 							obrigatorio={false}
 							onChange={(e: any) => { setFiltrosBusca({ ...filtrosBusca, dataInclusaoFim: e.target.value}); }} />
 					</div>

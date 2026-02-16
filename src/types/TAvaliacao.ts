@@ -55,5 +55,11 @@ export type TGeracaoPergunta = {
 export type TBuscaAvaliacao = {
     id?: string,
     nome?: string,
-    descricao?: string
+    descricao?: string,
+    ativo?: boolean
 };  
+
+export type TAvaliacaoBasica = {
+    id: number,
+    nome: string
+};

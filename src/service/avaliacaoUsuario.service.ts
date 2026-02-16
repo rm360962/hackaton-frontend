@@ -1,15 +1,16 @@
 import { useContext } from "react";
-import { clienteAxios } from "../axios";
-import { TBuscaConteudo, TEdicaoConteudo, TConteudo } from "../types/TConteudo";
 import { SessionContext } from "../sessionContext";
+import { TAvaliacaoAluno, TBuscaAvaliacaoAluno, TEdicaoAvaliacaoAluno } from "../types/TAvaliacaoUsuario";
+import { clienteAxios } from "../axios";
 import { TRespostaErroApi } from "../types/TRespostaErroApi";
 
-export class ConteudoService {
+export class AvaliacaoAlunoService {
+
     private contexto = useContext(SessionContext);
 
-    buscarConteudos = async (dados: TBuscaConteudo): Promise<{ erro: string | null, conteudos: TConteudo[]}> => {
+    buscarAvaliacoesUsuario = async (filtros: TBuscaAvaliacaoAluno): Promise<{ erro: string | null, avaliacoesAluno: TAvaliacaoAluno[] }> => {
         const params: { [key: string]: any } = {};
-        for (const [chave, valor] of Object.entries(dados)) {
+        for (const [chave, valor] of Object.entries(filtros)) {
             if (valor !== null && valor !== undefined && valor !== '') {
                 params[chave] = valor;
             }
@@ -18,7 +19,7 @@ export class ConteudoService {
         try {
             const resposta = await clienteAxios({
                 method: 'get',
-                url: '/conteudo',
+                url: '/avaliacoes/aluno',
                 params: params,
                 headers: {
                     token: this.contexto.sessao.token
@@ -26,84 +27,80 @@ export class ConteudoService {
             });
 
             return {
-                erro: resposta.status === 200 ? null : 'Erro na busca dos conteudos',
-                conteudos: resposta.status === 200 ? resposta?.data : [],
+                erro: resposta.status === 200 ? null : 'Erro na busca das avaliações aluno',
+                avaliacoesAluno: resposta.status === 200 ? resposta?.data : [],
             };
         } catch (erro) {
-            console.log('Erro na busca dos conteudos', erro);
+            console.log('Erro na busca das avaliacoes aluno', erro);
             return {
-                erro: 'Erro ao buscar as postagens',
-                conteudos: [],
+                erro: 'Erro na busca das avaliações aluno',
+                avaliacoesAluno: [] as TAvaliacaoAluno[],
             };
         }
     };
 
-    buscarConteudoPorId = async (id: number): Promise<{ erro: string | null, conteudo: TConteudo }> => {
+    buscarAvaliacaoAlunoPorId = async (id: number): Promise<{ erro: string | null, avaliacaoAluno: TAvaliacaoAluno }> => {
         try {
             const resposta = await clienteAxios({
                 method: 'get',
-                url: `/conteudo/${id}`,
+                url: `/avaliacoes/aluno/${id}`,
                 headers: {
                     token: this.contexto.sessao.token,
                 },
             });
 
             return {
-                erro: resposta.status === 200 ? null : 'Erro ao buscar a conteudo',
-                conteudo: resposta.status === 200 ? resposta.data : {}
+                erro: resposta.status === 200 ? null : 'Erro na busca da avaliacão aluno',
+                avaliacaoAluno: resposta.status === 200 ? resposta.data : {}
             };
         } catch (erro) {
-            console.log('Erro buscar a conteudo por id', erro);
+            console.log('Erro ao busca a avaliacao aluno', erro);
             return {
-                erro: 'Erro ao buscar a conteudo',
-                conteudo: {} as TConteudo
+                erro: 'Erro na busca da avaliacão aluno',
+                avaliacaoAluno: {} as TAvaliacaoAluno
             };
         }
     };
 
-    cadastrarConteudo = async (conteudo: TEdicaoConteudo): Promise<{ erros: TRespostaErroApi[] | null, conteudo: TEdicaoConteudo }> => {
+    cadastrarAvaliacaoAluno = async (avaliacaoAluno: TEdicaoAvaliacaoAluno): Promise<{ erros: TRespostaErroApi[] | null }> => {
         try {
             const resposta = await clienteAxios({
                 method: 'post',
-                url: '/conteudo',
-                data: conteudo,
+                url: '/avaliacoes/aluno',
+                data: avaliacaoAluno,
                 headers: {
                     token: this.contexto.sessao.token,
                 },
-                validateStatus: (status: number) => [201, 422].includes(status),
+                validateStatus: (status: number) => [201, 422, 400].includes(status),
             });
 
             if (resposta.status === 201) {
-                conteudo.id = resposta.data.id;
                 return {
-                    conteudo: conteudo,
-                    erros: null,
+                    erros: null
                 };
             } else {
                 return {
-                    conteudo: {} as TEdicaoConteudo,
                     erros: resposta.data.erros,
                 };
             }
         } catch (erro) {
-            console.log('Erro no cadastro da conteudo', erro);
+            console.log('Erro no cadastro da avaliação aluno', erro);
             return {
-                conteudo: {} as TEdicaoConteudo,
                 erros: [
                     {
-                        mensagem: 'Erro ao cadastrar a conteudo',
+                        mensagem: 'Erro ao cadastrar a avaliação aluno',
                     }
                 ],
             }
         }
     };
 
-    editarConteudo = async (conteudo: TEdicaoConteudo): Promise<TRespostaErroApi[] | null> => {
+    editarAvaliacaoAluno = async (avaliacaoAluno: TEdicaoAvaliacaoAluno): Promise<TRespostaErroApi[] | null> => {
         try {
             const resposta = await clienteAxios({
                 method: 'put',
-                url: `/conteudo/${conteudo.id}`,
-                data: conteudo,
+                url: `/avaliacoes/aluno/${avaliacaoAluno.id}`,
+                data: avaliacaoAluno,
                 headers: {
                     token: this.contexto.sessao.token,
                 },
@@ -116,20 +113,20 @@ export class ConteudoService {
                 return resposta.data.erros;
             }
         } catch (erro) {
-            console.log('Erro ao editar a conteudo', erro);
+            console.log('Erro ao editar a avaliação aluno', erro);
             return [
                 {
-                    mensagem: 'Erro ao editar a conteudo'
+                    mensagem: 'Erro ao editar a avaliação aluno'
                 }
             ];
         }
     };
 
-    removerConteudo = async (id: number) : Promise<boolean> => {
+    removerAvaliacaoAluno = async (id: number): Promise<boolean> => {
         try {
             const resposta = await clienteAxios({
                 method: 'delete',
-                url: `/conteudo/${id}`,
+                url: `/avaliacoes/aluno/${id}`,
                 headers: {
                     token: this.contexto.sessao.token
                 },
@@ -137,9 +134,8 @@ export class ConteudoService {
 
             return resposta.status === 200;
         } catch (erro) {
-            console.log('Erro na exclusao da conteudo', erro);
+            console.log('Erro na exclusão da avaliação aluno', erro);
             return false;
         }
     };
-
 }

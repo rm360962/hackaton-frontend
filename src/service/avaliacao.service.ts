@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { conexaoApi } from "../axios";
+import { clienteAxios } from "../axios";
 import { SessionContext } from "../sessionContext";
 import { TRespostaErroApi } from "../types/TRespostaErroApi";
 import { TAvaliacao, TBuscaAvaliacao, TEdicaoAvaliacao } from "../types/TAvaliacao";
@@ -16,7 +16,7 @@ export class AvaliacaoService {
         }
 
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'get',
                 url: '/avaliacoes',
                 params: params,
@@ -40,7 +40,7 @@ export class AvaliacaoService {
 
     buscarAvaliacaoPorId = async (id: number): Promise<{ erro: string | null, avaliacao: TAvaliacao }> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'get',
                 url: `/avaliacoes/${id}`,
                 headers: {
@@ -63,7 +63,7 @@ export class AvaliacaoService {
 
     cadastrarAvaliacao = async (avaliacao: TEdicaoAvaliacao): Promise<{ erros: TRespostaErroApi[] | null, avaliacao: TEdicaoAvaliacao }> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'post',
                 url: '/avaliacoes',
                 data: avaliacao,
@@ -100,7 +100,7 @@ export class AvaliacaoService {
 
     editarAvaliacao = async (avaliacao: TEdicaoAvaliacao): Promise<TRespostaErroApi[] | null> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'put',
                 url: `/avaliacoes/${avaliacao.id}`,
                 data: avaliacao,
@@ -127,7 +127,7 @@ export class AvaliacaoService {
 
     removerAvaliacao = async (id: number) : Promise<boolean> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'delete',
                 url: `/avaliacoes/${id}`,
                 headers: {
@@ -144,7 +144,7 @@ export class AvaliacaoService {
 
     removerPergunta = async (id: number) : Promise<boolean> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'delete',
                 url: `/avaliacoes/pergunta/${id}`,
                 headers: {

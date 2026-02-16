@@ -1,4 +1,4 @@
-import { conexaoApi } from "../axios";
+import { clienteAxios } from "../axios";
 import { TLoginUsuario } from "../types/TSession";
 
 export class LoginService {
@@ -8,9 +8,9 @@ export class LoginService {
         const autenticacaoBase64 = btoa(`${usuario}:${senha}`);
 
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'get',
-                url: '/users/login',
+                url: '/usuarios/login',
                 headers: {
                     'Authorization': autenticacaoBase64,
                 },

@@ -1,6 +1,6 @@
 import { TEdicaoPergunta, TGeracaoPergunta } from "../types/TAvaliacao";
 import { useContext } from "react";
-import { conexaoApi } from "../axios";
+import { clienteAxios } from "../axios";
 import { SessionContext } from "../sessionContext";
 import { TEdicaoConteudo } from "../types/TConteudo";
 
@@ -9,7 +9,7 @@ export class AssitenteService {
 
     gerarPerguntas = async (dados: TGeracaoPergunta): Promise<{ erro: string | null, perguntas: TEdicaoPergunta[] }> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'post',
                 url: '/assitente/gerar-perguntas',
                 data: dados,
@@ -41,7 +41,7 @@ export class AssitenteService {
 
     gerarConteudo = async (assunto: string): Promise<{ erro: string | null, conteudo: TEdicaoConteudo}> => {
         try {
-            const resposta = await conexaoApi({
+            const resposta = await clienteAxios({
                 method: 'post',
                 url: '/assitente/gerar-conteudo',
                 data: {
@@ -68,7 +68,7 @@ export class AssitenteService {
             console.log('Erro na geração do conteúdo via assitente', erro);
             return {
                 erro: 'Erro na geração do conteúdo via assitente',
-                conteudo: {}
+                conteudo: {} as TEdicaoConteudo
             };
         }
     }

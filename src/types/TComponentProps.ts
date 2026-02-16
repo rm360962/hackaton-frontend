@@ -49,6 +49,7 @@ export type TSelectProps = {
     mensagemPadrao: string,
     titulo: string,
     obrigatorio?: boolean,
+    desabilitado?: boolean,
     style?: any
 };
 

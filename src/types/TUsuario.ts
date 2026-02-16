@@ -35,3 +35,8 @@ export type TEdicaoUsuarioResposta = {
     id: number,
     mensagem: string,
 };
+
+export type TUsuarioBasico = {
+    id: number,
+    nome: string,
+};

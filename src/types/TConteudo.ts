@@ -1,5 +1,8 @@
+import { TUsuarioBasico } from "./TUsuario";
+
 export type TConteudo =  {
     id: number,
+    titulo: string,
     descricao: string,
     texto: string,
     usuario: TUsuarioBasico,
@@ -7,18 +10,14 @@ export type TConteudo =  {
     usuarioInclusao: string,
 };
 
-export type TUsuarioBasico = {
-    id: number,
-    nome: string,
-};
-
 export type TBuscaConteudo = {
-    id: string,
-    titulo: string,
-    descricao: string,
-    usuarioId: string,
-    dataInclusaoInicio: string,
-    dataInclusaoFim: string
+    id?: string,
+    titulo?: string,
+    descricao?: string,
+    usuarioId?: string,
+    ativo?: boolean,
+    dataInclusaoInicio?: string,
+    dataInclusaoFim?: string,
 };
 
 export type TEdicaoConteudo = {

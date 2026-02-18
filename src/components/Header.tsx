@@ -56,7 +56,7 @@ const Header = () => {
             <div id="menu" className={`collapse navbar-collapse ${mostrarMenu ? 'show' : ''}`}>
                 <ul className="navbar-nav me-auto">
                     <li className="nav-item active">
-                        <Link to="/postagens" className="nav-link">Página inicial</Link>
+                        <Link to="/" className="nav-link">Página inicial</Link>
                     </li>
                     {acessoPgUsuario && (
                         <li className="nav-item">
@@ -65,6 +65,9 @@ const Header = () => {
                     )}
                     <li className="nav-item">
                         <Link to="/avaliacoes" className="nav-link">Avaliações</Link>
+                    </li>
+                    <li className="nav-item">
+                        <Link to="/avaliacoes/aluno" className="nav-link">Avaliações aluno</Link>
                     </li>
                     <li className="nav-item">
                         <Link to="/conteudos" className="nav-link">Conteúdos</Link>

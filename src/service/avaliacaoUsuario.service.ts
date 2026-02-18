@@ -138,4 +138,22 @@ export class AvaliacaoAlunoService {
             return false;
         }
     };
+
+    enviarRespostas = async (envioResposta : any) : Promise<boolean> => {
+        try {
+            const resposta = await clienteAxios({
+                method: 'post',
+                url: `/avaliacoes/aluno/enviar-resposta`,
+                headers: {
+                    token: this.contexto.sessao.token
+                },
+                data: envioResposta
+            });
+
+            return resposta.status === 200;
+        } catch (erro) {
+            console.log('Erro na exclusão da avaliação aluno', erro);
+            return false;
+        }
+    };
 }

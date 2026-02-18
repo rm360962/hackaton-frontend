@@ -62,6 +62,10 @@ const AvaliacaoAluno = () => {
         navegador(`/avaliacoes/aluno/editar/${id}`);
     };
 
+    const corrigirAvaliacaoAluno = (id: number) => {
+        navegador(`/avaliacoes/aluno/${id}/responder`);
+    };
+
     const confirmarRemocao = (id: number) => {
         setRemovendo(true);
         setIdRemocao(id);
@@ -143,11 +147,20 @@ const AvaliacaoAluno = () => {
                                                         &#128221;
                                                     </button>
                                                 )}
-                                                {true && (
+                                                {avaliacaoAluno.ativo && (
                                                     <button
                                                         style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
                                                         title="Clique para inativar o usuário"
                                                         onClick={() => { confirmarRemocao(avaliacaoAluno.id) }}
+                                                    >
+                                                        &#10060;
+                                                    </button>
+                                                )}
+                                                {avaliacaoAluno.situacao.id === 2 && (
+                                                    <button
+                                                        style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
+                                                        title="Clique para corrigir a avaliação do aluno"
+                                                        onClick={() => { corrigirAvaliacaoAluno(avaliacaoAluno.id) }}
                                                     >
                                                         &#10060;
                                                     </button>

@@ -20,6 +20,7 @@ import EditarConteudo from "./pages/conteudo/EditarConteudo.tsx";
 import VisualizarConteudo from "./pages/conteudo/VisualizarConteudo.tsx";
 import AvaliacaoAluno from "./pages/avaliacaoUsuario/AvaliacaoAluno.tsx";
 import EditarAvaliacaoAluno from "./pages/avaliacaoUsuario/EditarAvaliacaoAluno.tsx";
+import VisualizarAvaliacaoAluno from "./pages/avaliacaoUsuario/VisualizarAvaliacaoAluno.tsx";
 
 function App() {
   const [sessao, setSessao] = useState({} as TSession);
@@ -140,6 +141,30 @@ function App() {
               </ProtectedRoute>
             }
             />
+            <Route path="/avaliacoes/aluno/visualizar/:id" element={
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
+                <VisualizarAvaliacaoAluno />
+              </ProtectedRoute>
+            }
+            />
+            <Route path="/avaliacoes/aluno/:id/responder" element={
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
+                <ResponderAvaliacao />
+              </ProtectedRoute>
+            }
+            />
+            <Route path="/avaliacoes/aluno/:id/corrigir" element={
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
+                <ResponderAvaliacao />
+              </ProtectedRoute>
+            }
+            />
+            <Route path="/avaliacoes/:id/visualizar" element={
+              <ProtectedRoute permissoes={['buscar_conteudo']}>
+                <ResponderAvaliacao />
+              </ProtectedRoute>
+            }
+            />
             <Route path="/avaliacoes" element={
               <ProtectedRoute permissoes={['buscar_conteudo']}>
                 <Avaliacao />
@@ -149,12 +174,6 @@ function App() {
             <Route path="/avaliacoes/editar/:id" element={
               <ProtectedRoute permissoes={['buscar_conteudo']}>
                 <EditarAvaliacao />
-              </ProtectedRoute>
-            }
-            />
-            <Route path="/avaliacoes/visualizar/:id/:preVisualizar" element={
-              <ProtectedRoute permissoes={['buscar_conteudo']}>
-                <ResponderAvaliacao />
               </ProtectedRoute>
             }
             />

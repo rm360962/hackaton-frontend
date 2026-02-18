@@ -61,5 +61,6 @@ export type TBuscaAvaliacao = {
 
 export type TAvaliacaoBasica = {
     id: number,
-    nome: string
+    nome: string,
+    tipo: string
 };

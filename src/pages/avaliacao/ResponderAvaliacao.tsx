@@ -2,39 +2,75 @@ import Header from "../../components/Header";
 import Button from "../../components/Button";
 import TextArea from "../../components/TextArea";
 import ConfirmModal from "../../components/ConfirmModal";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { TAvaliacao } from "../../types/TAvaliacao";
 import { AvaliacaoService } from "../../service/avaliacao.service";
 import { SessionContext } from "../../sessionContext";
 import { TipoAlerta } from "../../types/TComponentProps";
+import { TAvaliacaoAluno, TRespostaPergunta } from "../../types/TAvaliacaoUsuario";
+import { AvaliacaoAlunoService } from "../../service/avaliacaoUsuario.service";
 
 const ResponderAvaliacao = () => {
+    const [acao, setAcao] = useState('responder');
     const [carregando, setCarregando] = useState(false);
     const [respostas, setRespostas] = useState<Record<number, any>>({});
+    const [correcoes, setCorrecoes] = useState<Record<number, boolean>>({});
+    const [quantidadeCorrecao, setQuantidadeCorrecao] = useState(0);
     const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
     const [mensagemFinalizacao, setMensagemFinalizacao] = useState('');
     const [avaliacao, setAvaliacao] = useState({} as TAvaliacao);
-    const [avaliacaoUsuario, setAvaliacaoUsuario] = useState({});
-    const { id, preVisualizar } = useParams();
+    const [avaliacaoAluno, setAvaliacaoAluno] = useState({} as TAvaliacaoAluno);
+    const { id } = useParams();
     const mensagemFinalizacaoPadrao = 'Confirma a finalização da avaliação?';
     const avaliacaoService = new AvaliacaoService();
+    const avaliacaoAlunoService = new AvaliacaoAlunoService();
     const contexto = useContext(SessionContext);
     const navegador = useNavigate();
+    const local = useLocation();
 
     useEffect(() => {
-        console.log(id, preVisualizar);
-        if (preVisualizar == null || preVisualizar === 'false') {
+        const caminho = local.pathname.split('/');
+        const acao = caminho.pop();
+
+        if (!id || !acao) return;
+        console.log(acao);
+
+        setAcao(acao);
+
+        if (acao === 'responder' || acao === 'corrigir') {
+            buscarDados(+id, acao);
             return;
         }
 
-        if (id) {
-            buscarAvaliacao(+id);
-        }
+        buscarAvaliacao(+id);
     }, []);
 
-    const buscarAvaliacaoUsuario = async () => {
+    const buscarDados = async (id: number, acao: string) => {
+        const { erro, avaliacaoAluno } = await avaliacaoAlunoService.buscarAvaliacaoAlunoPorId(id);
 
+        if (erro) {
+            contexto.adcionarAlerta({
+                tipo: TipoAlerta.Erro,
+                mensagem: erro
+            });
+            return;
+        }
+
+        if(acao === 'responder' && avaliacaoAluno.situacao.id !== 1) {
+            contexto.adcionarAlerta({
+                tipo: TipoAlerta.Erro,
+                mensagem: 'A avaliação já foi respondida',
+            });
+
+            navegador('/avaliacoes/aluno');
+        }
+
+        await buscarAvaliacao(avaliacaoAluno.avaliacao.id);
+
+        if(acao ==='corrigir') preecherRespostas(avaliacaoAluno.respostas);
+
+        setAvaliacaoAluno(avaliacaoAluno);
     };
 
     const buscarAvaliacao = async (id: number) => {
@@ -48,7 +84,21 @@ const ResponderAvaliacao = () => {
             return;
         }
 
+        const quantidadeDescritiva = avaliacao.perguntas.filter(pergunta => pergunta.tipo.id === 1);
+
+        setQuantidadeCorrecao(quantidadeDescritiva.length);
         setAvaliacao(avaliacao);
+    };
+
+    const preecherRespostas = (respostasAluno: TRespostaPergunta[] | null) => {
+        if (!respostasAluno || respostasAluno.length === 0) return;
+
+        const respostas: Record<number, any> = {};
+        respostasAluno.forEach((resposta) => {
+            respostas[resposta.perguntaId] = resposta.valor;
+        })
+        setRespostas(respostas);
+        console.log(respostas);
     };
 
     const construirPerguntaPorIndice = (pergunta: any, indice: number) => {
@@ -56,7 +106,40 @@ const ResponderAvaliacao = () => {
         return (
             <div>
                 <hr />
-                <p className="fw-semibold h6">{perguntaIndice}</p>
+                <div className="d-flex justify-content-between">
+                    <div>
+                        <p className="fw-semibold h6">{perguntaIndice}</p>
+                    </div>
+                    {(acao === 'corrigir' && pergunta.tipo.id === 1) && (
+                        <div className="d-flex">
+                            <div style={{ paddingRight: 10}}>
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    name={`resposta-${pergunta.id}`}
+                                    checked={correcoes[pergunta.id] === true}
+                                    onChange={() => atualizarCorrecoes(pergunta.id, true)}
+                                />
+                                <label className="form-check-label h6" style={{ fontWeight: 'bold', padding: 5}}>
+                                    Certo
+                                </label>
+                            </div>
+                            <div>
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    name={`resposta-${pergunta.id}`}
+                                    checked={correcoes[pergunta.id] === false}
+                                    onChange={() => atualizarCorrecoes(pergunta.id, false)}
+                                />
+                                <label className="form-check-label h6" style={{ fontWeight: 'bold', padding: 5}}>
+                                    Errado
+                                </label>
+                            </div>
+                        </div>
+
+                    )}
+                </div>
             </div>
         );
     };
@@ -95,23 +178,82 @@ const ResponderAvaliacao = () => {
         }));
     };
 
+    const atualizarCorrecoes = (perguntaId: number, valor: any) => {
+        setCorrecoes(prev => ({
+            ...prev,
+            [perguntaId]: valor
+        }));
+    };
+
     const confirmaFinalizacaoAvaliacao = (event: any) => {
         event.preventDefault();
 
-        setMensagemFinalizacao(mensagemFinalizacao);
+        if (acao === 'responder') {
+            setMensagemFinalizacao(mensagemFinalizacaoPadrao);
 
-        const quantidadePerguntas = avaliacao.perguntas.length;
-        const quantidadeResposta = Object.keys(respostas).length;
+            const quantidadePerguntas = avaliacao.perguntas.length;
+            const quantidadeResposta = Object.keys(respostas).length;
 
-        if (quantidadePerguntas > quantidadeResposta) {
-            setMensagemFinalizacao('Ainda existem perguntas a serem respondidas, confirma a finalização da avaliação?');
+            if (quantidadePerguntas > quantidadeResposta) {
+                setMensagemFinalizacao('Ainda existem perguntas a serem respondidas, confirma a finalização da avaliação?');
+            }
+        } else {
+            setMensagemFinalizacao('A avaliação do aluno será finalizada, confirma os dados de correção?');
+
+            const quantidadeCorrigida = Object.keys(correcoes).length;
+
+            if (quantidadeCorrecao > quantidadeCorrigida) {
+                contexto.adcionarAlerta({
+                    tipo: TipoAlerta.Erro,
+                    mensagem: 'Ainda faltam perguntas a serem corrigidas',
+                });
+
+                return;
+            }
         }
 
         setMostrarConfirmacao(true);
     };
 
     const finalizarAvaliacao = async () => {
+        setCarregando(true);
 
+        try {
+            const respostasPergunta = Object.entries(respostas).map(([chave, valor]) => {
+                const objeto = {
+                    perguntaId: +chave,
+                    valor
+                } as TRespostaPergunta
+
+                const correta = correcoes[+chave];
+
+                if (correta != null) {
+                    objeto.correta = correta
+                }
+
+                return objeto;
+            });
+
+            const requisicao = {
+                id: avaliacaoAluno.id,
+                avaliacaoId: avaliacaoAluno.avaliacao.id,
+                respostas: respostasPergunta
+            };
+
+            const respostaEnviada = await avaliacaoAlunoService.enviarRespostas(requisicao);
+
+            if (!respostaEnviada) {
+                contexto.adcionarAlerta({
+                    tipo: TipoAlerta.Erro,
+                    mensagem: 'Erro ao enviar as respostas, contate o professor responsável'
+                });
+                return;
+            }
+
+            navegador('/avaliacoes/aluno');
+        } finally {
+            setCarregando(false);
+        }
     };
 
     return (
@@ -137,13 +279,13 @@ const ResponderAvaliacao = () => {
                                 })}
                             </div>
                             <div className="d-flex f-column align-itens-center justify-content-center">
-                                {(preVisualizar == null || preVisualizar === 'false') && (
+                                {(acao === 'responder' || acao === 'corrigir') && (
                                     <Button
                                         tipo="submit"
                                         class="primary"
                                         carregando={carregando}
                                         style={{ marginRight: '10px' }}>
-                                        Finalizar
+                                        {acao === 'responder' ? 'Finalizar' : 'Finalizar correção'}
                                     </Button>
                                 )}
                                 <Button

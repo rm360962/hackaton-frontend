@@ -7,13 +7,13 @@ import { AvaliacaoAlunoService } from "../../service/avaliacaoUsuario.service";
 import { UsuarioService } from "../../service/usuario.service";
 import { AvaliacaoService } from "../../service/avaliacao.service";
 import { ConteudoService } from "../../service/conteudo.service";
+import { converterEnumeradoSelectItem } from "../../util/funcoesGenericas";
+import { SituacaoAvaliacaoAluno } from "../../enums/situacaoAvaliacao.enum";
 import Header from "../../components/Header";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import Select from "../../components/Select";
 import ReactSelect from 'react-select';
-import { converterEnumeradoSelectItem } from "../../util/funcoesGenericas";
-import { SituacaoAvaliacaoAluno } from "../../enums/situacaoAvaliacao.enum";
 
 type ReactSelectItem = {
     label: string,
@@ -288,7 +288,7 @@ const EditarAvaliacaoAluno = () => {
                                             <Input
                                                 placeholder="Digite a nota do aluno"
                                                 titulo="Preencha com a nota do aluno de 0 a 10"
-                                                valor={avaliacaoAluno.nota}
+                                                valor={avaliacaoAluno?.nota || ''}
                                                 onChange={(e: any) => { setAvaliacaoAluno({ ...avaliacaoAluno, nota: e.target.value }) }}
                                                 obrigatorio={false}
                                                 style={{ maxWidth: '350px' }}

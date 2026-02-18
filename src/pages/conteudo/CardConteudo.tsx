@@ -8,7 +8,9 @@ const CardConteudo = ({ conteudo, visualizar, remover, editar} : TCardConteudo) 
     const [edicao, setEdicao] = useState(false);
 
     useEffect(() => {
-        setEdicao(context.usuarioPossuiPermissao('editar_conteudo'));
+        const permissao = context.usuarioPossuiPermissao('editar_conteudo');
+        const visualizarAcoes = permissao && (visualizar != null || remover != null || editar != null);
+        setEdicao(visualizarAcoes);
     }, []);
 
     return (

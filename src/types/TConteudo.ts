@@ -11,6 +11,7 @@ export type TConteudo =  {
 };
 
 export type TBuscaConteudo = {
+    ids?: number[],
     id?: string,
     titulo?: string,
     descricao?: string,

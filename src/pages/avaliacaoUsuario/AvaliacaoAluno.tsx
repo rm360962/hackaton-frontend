@@ -47,13 +47,13 @@ const AvaliacaoAluno = () => {
 
     useEffect(() => {
         const categoria = contexto.sessao.usuarioLogado.categoria.nome;
-
-        setPermissaoAdminstrativa(categoria === 'Professor' || categoria === 'Administrador');
+        const permissao = categoria === 'Professor' || categoria === 'Administrador';
+        setPermissaoAdminstrativa(permissao);
         
         buscarAlunos();
         buscarAvaliacoes();
 
-        limparFiltros();
+        limparFiltros(permissao);
         
         const situacao = searchParams.get('situacao');
 
@@ -135,7 +135,7 @@ const AvaliacaoAluno = () => {
     };
 
 
-    const limparFiltros = (usuarioAdm: boolean) => {
+    const limparFiltros = (usuarioAdm: boolean | null) => {
         if(usuarioAdm) {
             setFiltrosBusca(filtrosBuscaInicial);
             return;

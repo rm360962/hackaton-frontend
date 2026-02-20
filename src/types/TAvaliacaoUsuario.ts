@@ -23,7 +23,7 @@ export type TBuscaAvaliacaoAluno = {
     id: string,
     usuarioId: string,
     avaliacaoId: string,
-    situacao: string,
+    situacaoId: string,
 };
 
 export type TEdicaoAvaliacaoAluno = {

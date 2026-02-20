@@ -62,6 +62,52 @@ export class AvaliacaoAlunoService {
         }
     };
 
+    buscarResumoAvaliacoesAluno = async (id: number): Promise<{ erro: string | null, avaliacoes: any }> => {
+        try {
+            const resposta = await clienteAxios({
+                method: 'get',
+                url: `/avaliacoes/aluno/resumo/${id}`,
+                headers: {
+                    token: this.contexto.sessao.token,
+                },
+            });
+
+            return {
+                erro: resposta.status === 200 ? null : 'Erro na busca da avaliacão aluno',
+                avaliacoes: resposta.status === 200 ? resposta.data : {}
+            };
+        } catch (erro) {
+            console.log('Erro ao busca a avaliacao aluno', erro);
+            return {
+                erro: 'Erro na busca da avaliacão aluno',
+                avaliacoes: {} as TAvaliacaoAluno
+            };
+        }
+    };
+
+    buscarMetricasProfessor = async (): Promise<{ erro: string | null, metricas: any }> => {
+        try {
+            const resposta = await clienteAxios({
+                method: 'get',
+                url: `/avaliacoes/professor/resumo`,
+                headers: {
+                    token: this.contexto.sessao.token,
+                },
+            });
+
+            return {
+                erro: resposta.status === 200 ? null : 'Erro na busca das metricas do professor',
+                metricas: resposta.status === 200 ? resposta.data : {}
+            };
+        } catch (erro) {
+            console.log('Erro ao busca a avaliacao aluno', erro);
+            return {
+                erro: 'Erro na busca das metricas do professor',
+                metricas: {} as TAvaliacaoAluno
+            };
+        }
+    };
+
     cadastrarAvaliacaoAluno = async (avaliacaoAluno: TEdicaoAvaliacaoAluno): Promise<{ erros: TRespostaErroApi[] | null }> => {
         try {
             const resposta = await clienteAxios({
@@ -139,7 +185,7 @@ export class AvaliacaoAlunoService {
         }
     };
 
-    enviarRespostas = async (envioResposta : any) : Promise<boolean> => {
+    enviarRespostas = async (envioResposta: any): Promise<boolean> => {
         try {
             const resposta = await clienteAxios({
                 method: 'post',

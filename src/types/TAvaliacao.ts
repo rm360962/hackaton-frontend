@@ -56,7 +56,8 @@ export type TBuscaAvaliacao = {
     id?: string,
     nome?: string,
     descricao?: string,
-    ativo?: boolean
+    ativo?: boolean,
+    tipo?: string
 };  
 
 export type TAvaliacaoBasica = {

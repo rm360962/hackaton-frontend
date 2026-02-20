@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Enumerado } from "./Generico";
 
 export type TButtonProps = {
     tipo?: 'submit' | 'reset' | 'button',
@@ -72,4 +73,18 @@ export type TAlertProps = {
   tipo: TipoAlerta,
   mensagem: string,
   removerAlerta?: Function,
+};
+
+export type TCardAluno = {
+    id: number,
+    nome: string,
+    dataLimite: string,
+    dataExecucao: string,
+    situacao: string,
+    nota?: number
+};
+
+export type TCardAdm = {
+    quantidade: number,
+    tipo: string,
 };

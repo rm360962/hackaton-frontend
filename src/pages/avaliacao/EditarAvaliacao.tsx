@@ -10,6 +10,7 @@ import Header from "../../components/Header";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import Button from "../../components/Button";
+import ConfirmModal from "../../components/ConfirmModal";
 
 const EditarAvaliacao = () => {
     const tiposAvaliacao: TSelectItem[] = [
@@ -33,7 +34,7 @@ const EditarAvaliacao = () => {
             valor: 1
         }
     ];
-    
+
     const valorInicialAvaliacao = {
         id: '',
         nome: '',
@@ -64,6 +65,9 @@ const EditarAvaliacao = () => {
     const [geraPergunta, setGeraPergunta] = useState(valorInicialGeracaoPergunta);
     const [gravando, setGravando] = useState(false);
     const [gerando, setGerando] = useState(false);
+    const [remover, setRemover] = useState(false);
+    const [idRemocao, setIdRemocao] = useState<number | null>(null);
+    const [indiceRemocao, setIndiceRemocao] = useState(0);
     const avaliacaoService = new AvaliacaoService();
     const assistenteService = new AssitenteService();
     const navigator = useNavigate();
@@ -100,7 +104,7 @@ const EditarAvaliacao = () => {
                 valor: pergunta.valor,
                 tipo: pergunta.tipo.id.toString(),
                 alternativas: pergunta.tipo.id === 0 ? pergunta.itens.join(',') : '',
-                respostaCorreta: pergunta.tipo.id === 0 ? pergunta.itens[pergunta.respostaCorreta] : ''
+                respostaCorretaLabel: pergunta.tipo.id === 0 ? pergunta.itens[pergunta.respostaCorreta] : ''
             };
         });
 
@@ -271,7 +275,22 @@ const EditarAvaliacao = () => {
         return gravacaoValida;
     };
 
-    const removerPergunta = async (id: number | null, indice: number) => {
+    const confirmarRemocaoPergunta = async (id: number | null, indice: number) => {
+        setIdRemocao(id);
+        setIndiceRemocao(indice);
+        setRemover(true);
+
+        if(id != null) {
+            return;
+        }
+
+        await removerPergunta();
+    };
+
+    const removerPergunta = async () => {
+        const id = idRemocao;
+        const indice = indiceRemocao;
+
         if (id == null) {
             const perguntasNovo = perguntas.filter((_, i) => { i !== indice });
             setPerguntas(perguntasNovo);
@@ -536,7 +555,7 @@ const EditarAvaliacao = () => {
                                                                     type="button"
                                                                     style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
                                                                     title="Clique para inativar a avaliação"
-                                                                    onClick={() => { removerPergunta(pergunta.id || null, index); }}
+                                                                    onClick={() => { confirmarRemocaoPergunta(pergunta.id || null, index); }}
                                                                 >
                                                                     &#10060;
                                                                 </button>
@@ -578,6 +597,13 @@ const EditarAvaliacao = () => {
                     </form>
                 </div>
             </div>
+            <ConfirmModal
+                visivel={remover}
+                setVisivel={setRemover}
+                titulo="Remover pergunta"
+                pergunta="Confirma a remoção da pergunta?"
+                acao={removerPergunta} />
+
         </>
     );
 };

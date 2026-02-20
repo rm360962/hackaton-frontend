@@ -11,6 +11,7 @@ import SearchFilter from "../../components/SearchFilter";
 import Button from "../../components/Button";
 import Select from "../../components/Select";
 import ConfirmModal from "../../components/ConfirmModal";
+import { BsPencilSquare, BsTrash3 } from "react-icons/bs";
 
 const Usuario = () => {
     const usuarioBuscaInicial: TBuscaUsuario = {
@@ -219,22 +220,26 @@ const Usuario = () => {
                                         <tr key={usuario.id}>
                                             <td>
                                                 {usuario.ativo && (
-                                                    <button
-                                                        style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
-                                                        title="Clique para editar o usuário"
-                                                        onClick={(e) => { editarUsuario(usuario.id) }}
-                                                    >
-                                                        &#128221;
-                                                    </button>
+                                                    <div style={{ margin: 3 }}>
+                                                        <button
+                                                            className="btn btn-outline-secondary btn-sm"
+                                                            title="Clique para editar o usuário"
+                                                            onClick={(e) => { editarUsuario(usuario.id) }}
+                                                        >
+                                                            <BsPencilSquare size={18} />
+                                                        </button>
+                                                    </div>
                                                 )}
                                                 {usuario.ativo && (
-                                                    <button
-                                                        style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
-                                                        title="Clique para inativar o usuário"
-                                                        onClick={() => { confirmarRemocao(usuario.id) }}
-                                                    >
-                                                        &#10060;
-                                                    </button>
+                                                    <div style={{ margin: 3 }}>
+                                                        <button
+                                                            className="btn btn-outline-danger btn-sm"
+                                                            title="Clique para inativar o usuário"
+                                                            onClick={() => { confirmarRemocao(usuario.id) }}
+                                                        >
+                                                            <BsTrash3 size={18} />
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </td>
                                             <td>{usuario.id}</td>

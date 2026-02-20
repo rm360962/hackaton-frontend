@@ -113,12 +113,20 @@ const EditarAvaliacaoAluno = () => {
 
         const camposDataLimite = avaliacaoAluno.dataLimite.split('/');
         const dataLimiteInput = `${camposDataLimite[2]}-${camposDataLimite[1]}-${camposDataLimite[0]}`;
+
+        let dataExecucaoInput = '';
+        
+        if(avaliacaoAluno.dataExecucao) {
+            const camposDataExecucao = avaliacaoAluno.dataExecucao.split('/');
+            dataExecucaoInput = `${camposDataExecucao[2]}-${camposDataExecucao[1]}-${camposDataExecucao[0]}`;
+        }
+
         setAvaliacaoAluno({
             id: avaliacaoAluno.id.toString(),
             avaliacaoId: avaliacaoAluno.avaliacao.id.toString(),
             conteudosId: avaliacaoAluno.conteudosId?.map((conteudo) => conteudo.toString()),
             usuarioId: avaliacaoAluno.usuario.id.toString(),
-            dataExecucao: avaliacaoAluno?.dataExecucao || '',
+            dataExecucao: dataExecucaoInput,
             dataLimite: dataLimiteInput,
             nota: avaliacaoAluno?.nota?.toString() || '',
             situacaoId: avaliacaoAluno.situacao.id.toString()

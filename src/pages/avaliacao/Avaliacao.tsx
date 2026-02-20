@@ -1,24 +1,33 @@
 import { useNavigate } from "react-router-dom";
 import { useState, Fragment, useEffect, useContext } from "react";
 import { TAvaliacao, TBuscaAvaliacao } from "../../types/TAvaliacao";
-import Button from "../../components/Button";
-import ConfirmModal from "../../components/ConfirmModal";
-import Header from "../../components/Header";
+import { converterEnumeradoSelectItem } from "../../util/funcoesGenericas";
+import { TipoAvaliacao } from "../../enums/tipoAvaliacao.enum";
 import { AvaliacaoService } from "../../service/avaliacao.service";
 import { SessionContext } from "../../sessionContext";
 import { TipoAlerta } from "../../types/TComponentProps";
+import Button from "../../components/Button";
+import ConfirmModal from "../../components/ConfirmModal";
+import Header from "../../components/Header";
+import SearchFilter from "../../components/SearchFilter";
+import Input from "../../components/Input";
+import Select from "../../components/Select";
+import { BsEye, BsPencilSquare, BsTrash3 } from "react-icons/bs";
 
 const Avaliacao = () => {
-    const filtrosBuscaAvaliacoes = {
+    const filtrosBuscaAvaliacoesInicial = {
         id: '',
         nome: '',
         descricao: '',
+        tipo: ''
     } as TBuscaAvaliacao;
+
     const [avaliacoes, setAvaliacoes] = useState([] as TAvaliacao[]);
-    const [fitrosBusca, setFiltrosBusca] = useState(filtrosBuscaAvaliacoes);
+    const [fitrosBusca, setFiltrosBusca] = useState(filtrosBuscaAvaliacoesInicial);
     const [remover, setRemover] = useState(false);
     const [idRemocao, setIdRemocao] = useState<number | null>(null);
     const [linhaExpandida, setLinhaExpandida] = useState<number | null>(null);
+    const [tiposAvaliacao, setTiposAvaliacao] = useState(converterEnumeradoSelectItem(TipoAvaliacao))
     const avaliacaoService = new AvaliacaoService();
     const contexto = useContext(SessionContext);
     const navegador = useNavigate();
@@ -27,8 +36,8 @@ const Avaliacao = () => {
         pesquisar(fitrosBusca);
     }, []);
 
-    const pesquisar = async (filtros: TBuscaAvaliacao) => {
-        const { erro, avaliacoes } = await avaliacaoService.buscarAvaliacoes(filtros);
+    const pesquisar = async (filtros?: TBuscaAvaliacao) => {
+        const { erro, avaliacoes } = await avaliacaoService.buscarAvaliacoes(filtros ? filtros : fitrosBusca);
 
         if (erro) {
             contexto.adcionarAlerta({
@@ -54,7 +63,7 @@ const Avaliacao = () => {
     };
 
     const visualizarAvaliacao = (id: number) => {
-        navegador(`/avaliacoes/visualizar/${id}/true`);
+        navegador(`/avaliacoes/${id}/visualizar`);
     };
 
     const removerAvaliacao = async () => {
@@ -90,10 +99,53 @@ const Avaliacao = () => {
         }
     };
 
+    const limparFiltros = () => {
+        setFiltrosBusca(filtrosBuscaAvaliacoesInicial);
+    };
+
     return (
         <>
             <Header />
             <div className="d-flex">
+                <SearchFilter pesquisar={pesquisar} limpar={limparFiltros}>
+                    <div className='form-group mb-3'>
+                        <label className='fw-semibold'>Código</label>
+                        <Input
+                            titulo="Preencha com código da avaliação a ser buscada"
+                            placeholder="Digite o código da avaliação"
+                            tipo="number"
+                            valor={fitrosBusca.id || ''}
+                            obrigatorio={false}
+                            onChange={(e: any) => { setFiltrosBusca({ ...fitrosBusca, id: e.target.value }) }} />
+                    </div>
+                    <div className='form-group mb-3'>
+                        <label className='fw-semibold'>Nome</label>
+                        <Input
+                            titulo="Preencha com o nome da avaliação"
+                            placeholder="Digite o código da avaliação"
+                            valor={fitrosBusca.nome || ''}
+                            obrigatorio={false}
+                            onChange={(e: any) => { setFiltrosBusca({ ...fitrosBusca, nome: e.target.value }) }} />
+                    </div>
+                    <div className='form-group mb-3'>
+                        <label className='fw-semibold'>Descrição</label>
+                        <Input
+                            titulo="Preencha com código do usuário ser buscado"
+                            placeholder="Digite o código do usuário"
+                            valor={fitrosBusca.descricao || ''}
+                            obrigatorio={false}
+                            onChange={(e: any) => { setFiltrosBusca({ ...fitrosBusca, descricao: e.target.value }) }} />
+                    </div>
+                    <div className='form-group mb-3'>
+                        <label className='fw-semibold'>Tipo</label>
+                        <Select
+                            valor={fitrosBusca.tipo || ''}
+                            titulo="Selecione o tipo da avaliação"
+                            mensagemPadrao="Selecione o tipo da avaliação"
+                            itens={tiposAvaliacao}
+                            onChange={(e: any) => { setFiltrosBusca({ ...fitrosBusca, tipo: e.target.value }); }} />
+                    </div>
+                </SearchFilter>
                 <div className="container-fluid" style={{ paddingLeft: '0', height: '700px', overflowY: 'scroll' }}>
                     <div className='d-flex align-items-center justify-content-between mb-2'>
                         <p className="ps-4 h5 fw-semibold" style={{ letterSpacing: '1px', marginBottom: '0' }}>&#128195; Avaliações cadastradas</p>
@@ -116,7 +168,6 @@ const Avaliacao = () => {
                                     <th>Nome</th>
                                     <th>Descricao</th>
                                     <th>Tipo</th>
-                                    <th>Ativo</th>
                                     <th>Data inclusão</th>
                                     <th>Usuario inclusão</th>
                                     <th>Data alteração</th>
@@ -130,31 +181,37 @@ const Avaliacao = () => {
                                             <tr>
                                                 <td>
                                                     {avaliacao.ativo && (
-                                                        <button
-                                                            style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
-                                                            title="Clique para editar a avaliação"
-                                                            onClick={(e) => { editarAvaliacao(avaliacao.id) }}
-                                                        >
-                                                            &#128221;
-                                                        </button>
+                                                        <div style={{ margin: 3 }}>
+                                                            <button
+                                                                className="btn btn-outline-secondary btn-sm"
+                                                                title="Clique para editar a avaliação"
+                                                                onClick={(e) => { editarAvaliacao(avaliacao.id) }}
+                                                            >
+                                                                <BsPencilSquare size={18} />
+                                                            </button>
+                                                        </div>
                                                     )}
                                                     {avaliacao.ativo && (
-                                                        <button
-                                                            style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
-                                                            title="Clique para inativar a avaliação"
-                                                            onClick={() => { confirmarRemocao(avaliacao.id) }}
-                                                        >
-                                                            &#10060;
-                                                        </button>
+                                                        <div style={{ margin: 3 }}>
+                                                            <button
+                                                                className="btn btn-outline-danger btn-sm"
+                                                                title="Clique para inativar a avaliação"
+                                                                onClick={() => { confirmarRemocao(avaliacao.id) }}
+                                                            >
+                                                                <BsTrash3 size={18} />
+                                                            </button>
+                                                        </div>
                                                     )}
                                                     {avaliacao.ativo && (
-                                                         <button
-                                                            style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
-                                                            title="Clique para pré-visualizar a avaliação"
-                                                            onClick={() => { visualizarAvaliacao(avaliacao.id) }}
-                                                        >
-                                                            &#128269;
-                                                        </button>
+                                                        <div style={{ margin: 3 }}>
+                                                            <button
+                                                                className="btn btn-outline-info btn-sm"
+                                                                title="Clique para pré-visualizar a avaliação"
+                                                                onClick={() => { visualizarAvaliacao(avaliacao.id) }}
+                                                            >
+                                                                <BsEye size={18} />
+                                                            </button>
+                                                        </div>
                                                     )}
                                                 </td>
                                                 <td className="text-center">
@@ -169,7 +226,6 @@ const Avaliacao = () => {
                                                 <td>{avaliacao.nome}</td>
                                                 <td>{avaliacao.descricao}</td>
                                                 <td>{avaliacao.tipo.nome}</td>
-                                                <td>{avaliacao.ativo ? 'Sim' : 'Não'}</td>
                                                 <td>{avaliacao.dataInclusao}</td>
                                                 <td>{avaliacao.usuarioInclusao}</td>
                                                 <td>{avaliacao.dataAlteracao}</td>

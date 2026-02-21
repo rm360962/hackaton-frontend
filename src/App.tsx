@@ -118,7 +118,7 @@ function App() {
             }
             />
             <Route path="/conteudos/editar/:id" element={
-              <ProtectedRoute permissoes={['buscar_conteudo']}>
+              <ProtectedRoute permissoes={['editar_usuario']}>
                 <EditarConteudo />
               </ProtectedRoute>
             }
@@ -136,7 +136,7 @@ function App() {
             }
             />
             <Route path="/avaliacoes/aluno/editar/:id" element={
-              <ProtectedRoute permissoes={['buscar_conteudo']}>
+              <ProtectedRoute permissoes={['editar_usuario']}>
                 <EditarAvaliacaoAluno />
               </ProtectedRoute>
             }
@@ -154,25 +154,25 @@ function App() {
             }
             />
             <Route path="/avaliacoes/aluno/:id/corrigir" element={
-              <ProtectedRoute permissoes={['buscar_conteudo']}>
+              <ProtectedRoute permissoes={['editar_usuario']}>
                 <ResponderAvaliacao />
               </ProtectedRoute>
             }
             />
             <Route path="/avaliacoes/:id/visualizar" element={
-              <ProtectedRoute permissoes={['buscar_conteudo']}>
+              <ProtectedRoute permissoes={['editar_usuario']}>
                 <ResponderAvaliacao />
               </ProtectedRoute>
             }
             />
             <Route path="/avaliacoes" element={
-              <ProtectedRoute permissoes={['buscar_conteudo']}>
+              <ProtectedRoute permissoes={['editar_usuario']}>
                 <Avaliacao />
               </ProtectedRoute>
             }
             />
             <Route path="/avaliacoes/editar/:id" element={
-              <ProtectedRoute permissoes={['buscar_conteudo']}>
+              <ProtectedRoute permissoes={['editar_usuario']}>
                 <EditarAvaliacao />
               </ProtectedRoute>
             }

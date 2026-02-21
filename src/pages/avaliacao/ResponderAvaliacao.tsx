@@ -130,7 +130,6 @@ const ResponderAvaliacao = () => {
                                     name={`resposta-${pergunta.id}`}
                                     checked={correcoes[pergunta.id] === false}
                                     onChange={() => atualizarCorrecoes(pergunta.id, false)}
-                                    disabled={acao === 'corrigir'}
                                 />
                                 <label className="form-check-label h6" style={{ fontWeight: 'bold', padding: 5}}>
                                     Errado
@@ -163,6 +162,7 @@ const ResponderAvaliacao = () => {
                     name={`pergunta-${pergunta.id}`}
                     checked={respostas[pergunta.id] === id}
                     onChange={() => atualizarResposta(pergunta.id, id)}
+                    disabled={acao === 'corrigir'}
                 />
                 <label className="form-check-label">
                     {opcao}

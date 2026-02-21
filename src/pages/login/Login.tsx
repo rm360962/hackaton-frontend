@@ -59,7 +59,7 @@ const Login = () => {
 		<div className='conteiner d-flex justify-content-center align-items-center h-100'>
 			<div className='row border rounded-3 p-4 bg-white'>
 				<div className='d-flex justify-content-center mb-3' >
-					<p className='h4 font-weight-bold'>Blog Educa</p>
+					<p className='h4 font-weight-bold'>Educa</p>
 				</div>
 				<form id="formLogin" noValidate onSubmit={(e) => logarUsuario(e)}>
 					<div className='form-group mb-1'>

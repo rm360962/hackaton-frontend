@@ -40,7 +40,7 @@ export type TEdicaoPergunta = {
     descricao: string,
     valor: number,
     tipo: string,
-    items?: string[],
+    itens?: string[],
     alternativas?: string,
     respostaCorreta?: string
     respostaCorretaLabel?: string

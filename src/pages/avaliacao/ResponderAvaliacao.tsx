@@ -98,7 +98,6 @@ const ResponderAvaliacao = () => {
             respostas[resposta.perguntaId] = resposta.valor;
         })
         setRespostas(respostas);
-        console.log(respostas);
     };
 
     const construirPerguntaPorIndice = (pergunta: any, indice: number) => {
@@ -131,6 +130,7 @@ const ResponderAvaliacao = () => {
                                     name={`resposta-${pergunta.id}`}
                                     checked={correcoes[pergunta.id] === false}
                                     onChange={() => atualizarCorrecoes(pergunta.id, false)}
+                                    disabled={acao === 'corrigir'}
                                 />
                                 <label className="form-check-label h6" style={{ fontWeight: 'bold', padding: 5}}>
                                     Errado
@@ -195,7 +195,11 @@ const ResponderAvaliacao = () => {
             const quantidadeResposta = Object.keys(respostas).length;
 
             if (quantidadePerguntas > quantidadeResposta) {
-                setMensagemFinalizacao('Ainda existem perguntas a serem respondidas, confirma a finalização da avaliação?');
+                contexto.adcionarAlerta({
+                    tipo: TipoAlerta.Erro,
+                    mensagem: 'Você deve responder todas as perguntas para finalizar a avaliação'
+                });
+                return;
             }
         } else {
             setMensagemFinalizacao('A avaliação do aluno será finalizada, confirma os dados de correção?');
@@ -292,7 +296,12 @@ const ResponderAvaliacao = () => {
                                     tipo="button"
                                     class="secondary"
                                     desabilitado={carregando}
-                                    onClick={() => { navegador('/avaliacoes') }}>
+                                    onClick={() => { 
+                                        if(acao !== 'responder') { 
+                                            navegador('/avaliacoes'); 
+                                        } else {
+                                            navegador('/avaliacoes/aluno'); 
+                                        }}}>
                                     Voltar
                                 </Button>
                             </div>

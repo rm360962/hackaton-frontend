@@ -49,12 +49,10 @@ const AvaliacaoAluno = () => {
         const categoria = contexto.sessao.usuarioLogado.categoria.nome;
         const permissao = categoria === 'Professor' || categoria === 'Administrador';
         setPermissaoAdminstrativa(permissao);
-        
+
         buscarAlunos();
         buscarAvaliacoes();
 
-        limparFiltros(permissao);
-        
         const situacao = searchParams.get('situacao');
 
         let filtros = {
@@ -69,7 +67,17 @@ const AvaliacaoAluno = () => {
     }, []);
 
     const pesquisar = async (filtros?: TBuscaAvaliacaoAluno) => {
-        const { erro, avaliacoesAluno } = await avaliacaoAlunoService.buscarAvaliacoesUsuario(filtros ? filtros : filtrosBusca);
+        let filtrosPesquisa = filtros ? { ...filtros } : { ...filtrosBusca };
+
+        const categoria = contexto.sessao.usuarioLogado.categoria.nome;
+        const isProfessorOuAdmin = categoria === 'Professor' || categoria === 'Administrador';
+
+        if (!isProfessorOuAdmin) {
+            filtrosPesquisa.usuarioId = contexto.sessao.usuarioLogado.id.toString();
+        }
+
+        console.log(filtrosPesquisa);
+        const { erro, avaliacoesAluno } = await avaliacaoAlunoService.buscarAvaliacoesUsuario(filtrosPesquisa);
 
         if (erro) {
             contexto.adcionarAlerta({
@@ -135,16 +143,8 @@ const AvaliacaoAluno = () => {
     };
 
 
-    const limparFiltros = (usuarioAdm: boolean | null) => {
-        if(usuarioAdm) {
-            setFiltrosBusca(filtrosBuscaInicial);
-            return;
-        }
-
-        setFiltrosBusca({
-            ...filtrosBusca,
-            usuarioId: contexto.sessao.usuarioLogado.id.toString(),
-        });
+    const limparFiltros = () => {
+        setFiltrosBusca(filtrosBuscaInicial)
     };
 
     const editarAvaliacaoAluno = (id: number | null) => {
@@ -152,7 +152,7 @@ const AvaliacaoAluno = () => {
     };
 
     const corrigirAvaliacaoAluno = (id: number) => {
-        navegador(`/avaliacoes/aluno/${id}/responder`);
+        navegador(`/avaliacoes/aluno/${id}/corrigir`);
     };
 
     const confirmarRemocao = (id: number, situacaoId: number) => {
@@ -255,7 +255,6 @@ const AvaliacaoAluno = () => {
                                             <th>Data execução</th>
                                             <th>Nota</th>
                                             <th>Situação</th>
-                                            <th>Ativo</th>
                                             <th>Data inclusão</th>
                                             <th>Usuário inclusão</th>
                                             <th>Data alteração</th>
@@ -308,7 +307,6 @@ const AvaliacaoAluno = () => {
                                                     <td>{avaliacaoAluno.dataExecucao}</td>
                                                     <td>{avaliacaoAluno.nota}</td>
                                                     <td>{avaliacaoAluno.situacao.nome}</td>
-                                                    <td>{avaliacaoAluno.ativo}</td>
                                                     <td>{avaliacaoAluno.dataInclusao}</td>
                                                     <td>{avaliacaoAluno.usuarioInclusao}</td>
                                                     <td>{avaliacaoAluno.dataAlteracao}</td>
@@ -325,7 +323,7 @@ const AvaliacaoAluno = () => {
                             <div className='d-flex align-items-center justify-content-between mb-2'>
                                 <p className="ps-4 h5 fw-semibold" style={{ letterSpacing: '1px', marginBottom: '0' }}>&#128209; Avaliações encontradas</p>
                             </div>
-                            <div className="row" style={{ padding: 10}}>
+                            <div className="row" style={{ padding: 10 }}>
                                 {avaliacoesAluno?.map((avaliacaoAluno) => {
                                     return (
                                         <CardAluno

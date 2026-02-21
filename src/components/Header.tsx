@@ -37,13 +37,13 @@ const Header = () => {
         };
     }, []);
 
-
+    const horas = Math.floor(Math.max(0, tempoSessaoRestante) / (1000 * 60 * 60)).toString().padStart(2, '0');
     const minutos = Math.floor((Math.max(0, tempoSessaoRestante) / 1000 / 60) % 60).toString().padStart(2, '0');
     const segundos = Math.floor((Math.max(0, tempoSessaoRestante) / 1000) % 60).toString().padStart(2, '0');
 
     return (
         <nav className="navbar navbar-expand-md" style={{ backgroundColor: 'lightblue', paddingBottom: '0', paddingTop: '0', marginBottom: '15px' }}>
-            <Link to="/postagens" className="navbar-brand p-2" style={{ letterSpacing: '1.5px', fontWeight: '600' }}>Blog Educa</Link>
+            <Link to="/" className="navbar-brand p-2" style={{ letterSpacing: '1.5px', fontWeight: '600', paddingLeft: 10 }}>Educa</Link>
             <button
                 className="navbar-toggler ms-1"
                 type="button"
@@ -68,11 +68,12 @@ const Header = () => {
                             <li className="nav-item">
                                 <Link to="/avaliacoes" className="nav-link">Avaliações</Link>
                             </li>
-                            <li className="nav-item">
-                                <Link to="/conteudos" className="nav-link">Conteúdos</Link>
-                            </li>
+
                         </>
                     )}
+                    <li className="nav-item">
+                        <Link to="/conteudos" className="nav-link">Conteúdos</Link>
+                    </li>
                     <li className="nav-item">
                         <Link to="/avaliacoes/aluno" className="nav-link">{permissaoAdminstrativa ? 'Avaliações alunos' : 'Minhas avaliações'}</Link>
                     </li>
@@ -80,7 +81,7 @@ const Header = () => {
                 <span className="navbar-text d-flex">
                     <div style={{ fontSize: '14px' }}>
                         <p style={{ marginBottom: '0', fontWeight: '700' }}>Olá, {contexto.sessao?.usuarioLogado.nome}.</p>
-                        <p style={{ marginBottom: '0', fontWeight: '700' }}>Sua sessão expira em {minutos}:{segundos}</p>
+                        <p style={{ marginBottom: '0', fontWeight: '700' }}>Sua sessão expira em {horas}:{minutos}:{segundos}</p>
                     </div>
                     <div className="d-flex flex-column justify-content-center align-items-center ps-4 pe-2">
                         <img src={iconeLogout}

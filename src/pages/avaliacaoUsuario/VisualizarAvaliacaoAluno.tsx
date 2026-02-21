@@ -31,6 +31,8 @@ const VisualizarAvaliacaoAluno = () => {
 
         const { erro, avaliacaoAluno } = await avaliacaoAlunoService.buscarAvaliacaoAlunoPorId(+id);
 
+        console.log(avaliacaoAluno);
+
         if (erro) {
             contexto.adcionarAlerta({
                 tipo: TipoAlerta.Erro,
@@ -56,22 +58,25 @@ const VisualizarAvaliacaoAluno = () => {
     };
 
     const iniciarAvaliacao = async () => {
-        const erros = await avaliacaoAlunoService.editarAvaliacaoAluno({
-            id: '1',
-            situacaoId: '1'
-        } as TEdicaoAvaliacaoAluno);
+        if (avaliacaoAluno.situacao.id === 0) {
+            const erros = await avaliacaoAlunoService.editarAvaliacaoAluno({
+                id: avaliacaoAluno.id.toString(),
+                situacaoId: '1'
+            } as TEdicaoAvaliacaoAluno);
 
-        if (erros) {
-            for (const erro of erros) {
-                contexto.adcionarAlerta({
-                    tipo: TipoAlerta.Erro,
-                    mensagem: erro.mensagem
-                });
+            if (erros) {
+                for (const erro of erros) {
+                    contexto.adcionarAlerta({
+                        tipo: TipoAlerta.Erro,
+                        mensagem: erro.mensagem
+                    });
+                }
+                return;
             }
-            return;
+
         }
 
-        navegador(`/avaliacoes/responder/${avaliacaoAluno.id}/false`);
+        navegador(`/avaliacoes/aluno/${id}/responder`);
     };
 
     return (
@@ -134,7 +139,7 @@ const VisualizarAvaliacaoAluno = () => {
                 </div>
             </div>
             <ConfirmModal titulo="Iniciar avaliação"
-                pergunta="Você terá 1 hora para poder respoder a avaliação, deseja mesmo iniciar?"
+                pergunta={avaliacaoAluno?.situacao?.id === 0 ? 'Confirma o inicio da avaliação?' : 'Deseja continuar a avaliação?'}
                 visivel={iniciar}
                 setVisivel={setIniciar}
                 acao={iniciarAvaliacao} />

@@ -50,7 +50,7 @@ const CardConteudo = ({ conteudo, visualizar, remover, editar} : TCardConteudo) 
                         </div>
                     </div>
                 </>) : (
-                    <Link to={`/conteudo/visualizar/${conteudo.id}`} className="nav-link" style={{ color: 'blue'}}>Continuar lendo</Link>
+                    <Link to={`/conteudos/visualizar/${conteudo.id}`} className="nav-link" style={{ color: 'blue'}}>Continuar lendo</Link>
                 )}
             </div>
         </div>

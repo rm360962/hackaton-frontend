@@ -40,7 +40,7 @@ const EditarConteudo = () => {
                 });
                 return;
             }
-            console.log(conteudo);
+            
             setConteudo({
                 id: conteudo.id,
                 titulo: conteudo.titulo,
@@ -274,7 +274,7 @@ const EditarConteudo = () => {
                                 )}
                             </div>
                             <div className="d-flex align-items-center justify-content-center mt-3">
-                                {(!tipoAdicaoConteudo || tipoAdicaoConteudo === '1') && (
+                                {(conteudo?.id || tipoAdicaoConteudo === '1') && (
                                     <Button
                                         tipo="submit"
                                         class="primary"
@@ -283,7 +283,7 @@ const EditarConteudo = () => {
                                         Gravar
                                     </Button>
                                 )}
-                                {tipoAdicaoConteudo === '0' && (
+                                {!conteudo?.id && tipoAdicaoConteudo === '0' && (
                                     <Button
                                         tipo="button"
                                         class="primary"

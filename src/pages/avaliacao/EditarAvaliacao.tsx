@@ -11,6 +11,7 @@ import Input from "../../components/Input";
 import Select from "../../components/Select";
 import Button from "../../components/Button";
 import ConfirmModal from "../../components/ConfirmModal";
+import { BsTrash3 } from "react-icons/bs";
 
 const EditarAvaliacao = () => {
     const tiposAvaliacao: TSelectItem[] = [
@@ -76,6 +77,10 @@ const EditarAvaliacao = () => {
     useEffect(() => {
         buscarAvaliacao(idAvaliacao);
     }, []);
+
+    useEffect(() => {
+        console.log(perguntas);
+    }, [perguntas]);
 
     const buscarAvaliacao = async (id: string | undefined) => {
         if (id == null || id === 'null') return;
@@ -186,6 +191,7 @@ const EditarAvaliacao = () => {
             dadosPergunta.classList.add('was-validated');
             return;
         }
+
         if (tipoAdicaoPergunta && tipoAdicaoPergunta === '0') {
             setGerando(true);
 
@@ -205,13 +211,18 @@ const EditarAvaliacao = () => {
             return;
         }
 
-        if (pergunta.alternativas) {
-            const alternativasArray = pergunta.alternativas.split(',');
+        const perguntaAdcionar = {
+            ...pergunta,
+        };
+        
+        if (perguntaAdcionar.alternativas) {
+            const alternativasArray = perguntaAdcionar.alternativas.split(',');
             const indiceRespostaCorreta = alternativasArray.findIndex(alternativa => alternativa === pergunta.respostaCorretaLabel);
-            setPergunta({ ...pergunta, respostaCorreta: indiceRespostaCorreta.toString() });
+            perguntaAdcionar.respostaCorreta = indiceRespostaCorreta.toString();
+            perguntaAdcionar.itens = alternativasArray;
         }
 
-        setPerguntas([...perguntas, pergunta]);
+        setPerguntas([...perguntas, perguntaAdcionar]);
         setPergunta(valorInicialPergunta);
     };
 
@@ -241,7 +252,7 @@ const EditarAvaliacao = () => {
 
             if (pergunta.tipo === '0' &&
                 ((!pergunta.alternativas || pergunta.alternativas.length === 0) ||
-                    (!pergunta.respostaCorreta || pergunta.respostaCorreta.length === 0))) {
+                    (!pergunta.respostaCorretaLabel || pergunta.respostaCorretaLabel.length === 0))) {
                 perguntaValida = false;
             }
         }
@@ -279,23 +290,19 @@ const EditarAvaliacao = () => {
         setIdRemocao(id);
         setIndiceRemocao(indice);
         setRemover(true);
-
-        if(id != null) {
-            return;
-        }
-
-        await removerPergunta();
+        console.log('confirmando', id, indice);
     };
 
     const removerPergunta = async () => {
         const id = idRemocao;
         const indice = indiceRemocao;
+        console.log('removendo', id, indice);
 
         if (id == null) {
-            const perguntasNovo = perguntas.filter((_, i) => { i !== indice });
+            const perguntasNovo = perguntas.filter((_, i) => i !== indice);
             setPerguntas(perguntasNovo);
         } else {
-            const perguntaRemovida = avaliacaoService.removerPergunta(id);
+            const perguntaRemovida = await avaliacaoService.removerPergunta(id);
 
             if (!perguntaRemovida) {
                 contexto.adcionarAlerta({
@@ -550,16 +557,20 @@ const EditarAvaliacao = () => {
                                                 {perguntas.map((pergunta, index) => {
                                                     return (
                                                         <tr key={index}>
-                                                            <td>{
-                                                                <button
-                                                                    type="button"
-                                                                    style={{ border: 'none', backgroundColor: 'white', fontSize: '19px', padding: '0' }}
-                                                                    title="Clique para inativar a avaliação"
-                                                                    onClick={() => { confirmarRemocaoPergunta(pergunta.id || null, index); }}
-                                                                >
-                                                                    &#10060;
-                                                                </button>
-                                                            }</td>
+                                                            <td>
+                                                                {
+                                                                    <div style={{ margin: 3 }}>
+                                                                        <button
+                                                                            className="btn btn-outline-danger btn-sm"
+                                                                            title="Clique para remover a pergunta"
+                                                                            type="button"
+                                                                            onClick={() => { confirmarRemocaoPergunta(pergunta.id || null, index) }}
+                                                                        >
+                                                                            <BsTrash3 size={18} />
+                                                                        </button>
+                                                                    </div>
+                                                                }
+                                                            </td>
                                                             <td>{pergunta.id}</td>
                                                             <td>{pergunta.descricao}</td>
                                                             <td>{tiposPergunta.find(tipo => tipo.valor == pergunta.tipo)?.label}</td>

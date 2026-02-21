@@ -143,7 +143,7 @@ const EditarAvaliacao = () => {
                     for (const erro of erros) {
                         contexto.adcionarAlerta({
                             tipo: TipoAlerta.Erro,
-                            mensagem: erro
+                            mensagem: erro.mensagem
                         });
                     }
                     return;
@@ -162,7 +162,7 @@ const EditarAvaliacao = () => {
                     for (const erro of erros) {
                         contexto.adcionarAlerta({
                             tipo: TipoAlerta.Erro,
-                            mensagem: erro
+                            mensagem: erro.mensagem
                         });
                     }
                     return;
